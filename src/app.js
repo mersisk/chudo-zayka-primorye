@@ -83,6 +83,16 @@ function mediaStage(image, alt, className = "", loading = "lazy") {
   `;
 }
 
+function mediaCallouts(items, className = "") {
+  return `
+    <span class="media-callouts ${className}" aria-label="Коротко о фотографии">
+      ${items.filter(Boolean).map((item, index) => `
+        <span class="media-callout media-callout--${index + 1}"><i aria-hidden="true">${icons.spark}</i>${escapeHtml(item)}</span>
+      `).join("")}
+    </span>
+  `;
+}
+
 function serviceCard(service, featured = false) {
   return `
     <article class="service-card tilt-card reveal ${featured ? "service-card--featured" : ""}">
@@ -90,6 +100,7 @@ function serviceCard(service, featured = false) {
         ${mediaStage(service.image, service.title)}
         <span class="media-shine" aria-hidden="true"></span>
         <span class="service-card__badge">${escapeHtml(service.badge)}</span>
+        ${mediaCallouts([service.duration, "реальное фото"], "media-callouts--compact")}
       </a>
       <div class="service-card__body">
         <p class="micro-label">${escapeHtml(categoryLabel(service.category))} · ${escapeHtml(service.duration)}</p>
@@ -326,7 +337,10 @@ function renderCatalogGroups(categoryId) {
       <div class="catalog-group-grid">
         ${groups.map((group, index) => `
           <article class="catalog-group-card reveal" style="--delay:${index * 70}ms">
-            ${mediaStage(group.image, group.title, "catalog-group-card__media")}
+            <div class="catalog-group-card__visual">
+              ${mediaStage(group.image, group.title, "catalog-group-card__media")}
+              ${mediaCallouts([`${group.items.length} образов`], "media-callouts--compact")}
+            </div>
             <div class="catalog-group-card__body">
               <h3>${escapeHtml(group.title)}</h3>
               <div class="character-cloud">${group.items.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div>
@@ -357,6 +371,7 @@ function renderCatalog(categoryId) {
           </div>
           <div class="catalog-hero__art reveal" style="--delay:120ms">
             ${mediaStage(category.image, category.title, "catalog-hero__media", "")}
+            ${mediaCallouts([category.eyebrow, "реальные фото", `${filtered.length} вариантов в каталоге`])}
             <span class="catalog-hero__orbit" aria-hidden="true"></span>
           </div>
         </div>
@@ -393,6 +408,7 @@ function renderService(id) {
             <div class="detail-gallery__main">
               ${mediaStage(service.gallery[0], service.title, "detail-gallery__media", "")}
               <span class="detail-badge">${escapeHtml(service.badge)}</span>
+              ${mediaCallouts([service.duration, "реальный праздник", "можно добавить в заявку"])}
             </div>
             ${service.gallery.slice(1).length ? `<div class="detail-gallery__thumbs">${service.gallery.slice(1).map((image, index) => mediaStage(image, `${service.title}, фотография ${index + 2}`, "detail-gallery__thumb")).join("")}</div>` : ""}
           </div>
@@ -441,7 +457,11 @@ function renderReviews() {
       <section class="reviews-hero">
         <div class="container reviews-hero__grid">
           <div class="reveal"><p class="eyebrow">Отзывы клиентов</p><h1>После нас<br><em>остаются эмоции</em></h1><p class="hero-lead">Собрали живые впечатления из Telegram-канала агентства. Без имён и личных контактов.</p></div>
-          <div class="reviews-score reveal" style="--delay:100ms"><strong>5.0</strong><span>★★★★★</span><p>по опубликованным отзывам</p></div>
+          <div class="reviews-hero__visual reveal" style="--delay:100ms">
+            ${mediaStage("./public/media/hero-lol.jpg", "Эмоции детей на празднике", "reviews-hero__media", "")}
+            ${mediaCallouts(["живые эмоции", "реальные праздники", "отзывы из Telegram"])}
+            <div class="reviews-score"><strong>5.0</strong><span>★★★★★</span><p>по опубликованным отзывам</p></div>
+          </div>
         </div>
       </section>
       <section class="section reviews-page">
@@ -449,7 +469,10 @@ function renderReviews() {
       </section>
       <section class="section proof-section">
         <div class="container proof-grid">
-          <img class="reveal" src="./public/media/bear-family.jpg" alt="Семейное поздравление с большим медведем">
+          <div class="proof-visual reveal">
+            ${mediaStage("./public/media/bear-family.jpg", "Семейное поздравление с большим медведем", "proof-media")}
+            ${mediaCallouts(["семейный сюрприз", "фото на память"])}
+          </div>
           <div class="reveal" style="--delay:100ms"><p class="eyebrow">Почему нас рекомендуют</p><h2>Слышим идею.<br>Берём праздник на себя.</h2><ul class="proof-list"><li>всегда остаёмся на связи до события;</li><li>подстраиваем программу под возраст и гостей;</li><li>привозим костюмы, реквизит и музыкальное сопровождение;</li><li>помогаем сохранить сюрприз до самого выхода героя.</li></ul></div>
         </div>
       </section>
