@@ -1,4 +1,4 @@
-import { categories, getService, project, reviews, services, steps } from "./project.js";
+import { catalogGroups, categories, getService, project, reviews, services, steps } from "./project.js";
 import { store } from "./data/store.js";
 import {
   escapeHtml,
@@ -61,21 +61,33 @@ function formatPrice(value, prefix = "от") {
 function nav(active) {
   return [
     { href: "#/", label: "Главная", active: active === "home" },
-    { href: "#/catalog/express", label: "Экспресс", active: active === "express" },
-    { href: "#/catalog/party", label: "Праздники", active: active === "party" },
+    ...categories.map((category) => ({
+      href: `#/catalog/${category.id}`,
+      label: category.navTitle,
+      active: active === category.id,
+    })),
     { href: "#/reviews", label: "Отзывы", active: active === "reviews" },
   ];
 }
 
 function categoryLabel(category) {
-  return category === "express" ? "Экспресс-поздравление" : "Большой праздник";
+  return categories.find((item) => item.id === category)?.title || "Программа";
+}
+
+function mediaStage(image, alt, className = "", loading = "lazy") {
+  return `
+    <span class="media-stage ${className}">
+      <img class="media-stage__blur" src="${escapeHtml(image)}" alt="" aria-hidden="true" ${loading ? `loading="${loading}"` : ""}>
+      <img class="media-stage__image" src="${escapeHtml(image)}" alt="${escapeHtml(alt)}" ${loading ? `loading="${loading}"` : ""}>
+    </span>
+  `;
 }
 
 function serviceCard(service, featured = false) {
   return `
     <article class="service-card tilt-card reveal ${featured ? "service-card--featured" : ""}">
       <a class="service-card__media" href="#/service/${encodeURIComponent(service.id)}" aria-label="Подробнее: ${escapeHtml(service.title)}">
-        <img src="${service.image}" alt="${escapeHtml(service.title)}" loading="lazy">
+        ${mediaStage(service.image, service.title)}
         <span class="media-shine" aria-hidden="true"></span>
         <span class="service-card__badge">${escapeHtml(service.badge)}</span>
       </a>
@@ -159,8 +171,11 @@ function bindCommon() {
 }
 
 function renderHome() {
-  const express = services.filter((service) => service.category === "express").slice(0, 3);
-  const party = services.filter((service) => service.category === "party").slice(0, 3);
+  const expressIds = ["arthur-pirozhkov", "stas-mikhailov", "gorilla", "labubu-express"];
+  const showIds = ["neon-show", "foam-party", "cryo-show", "silver-disco"];
+  const express = expressIds.map(getService).filter(Boolean);
+  const shows = showIds.map(getService).filter(Boolean);
+  const tickerText = "АНИМАТОРЫ ✦ ЭКСПРЕСС-ПОЗДРАВЛЕНИЯ ✦ ШОУ-ПРОГРАММЫ ✦ ВЫПУСКНЫЕ ✦ ";
 
   renderShell({
     title: `${project.name} — аниматорское агентство в Приморье`,
@@ -173,47 +188,55 @@ function renderHome() {
         <div class="container hero-layout">
           <div class="hero-copy">
             <p class="eyebrow"><span>${icons.spark}</span> Владивосток · Приморский край</p>
-            <h1>Включаем<br><em>режим праздника</em></h1>
+            <h1>Праздник<br><em>на полную</em></h1>
             <p class="hero-lead">${escapeHtml(project.lead)}</p>
             <div class="hero-actions">
-              <a class="button button--primary magnetic" href="#formats">Выбрать формат <span>${icons.arrow}</span></a>
+              <a class="button button--primary magnetic" href="#/catalog/animators">Открыть каталог <span>${icons.arrow}</span></a>
               <a class="button button--glass" href="#/reviews">Смотреть отзывы</a>
             </div>
-            <div class="hero-facts" aria-label="Коротко о форматах">
-              <div><strong>10–15</strong><span>минут экспресс-сюрприза</span></div>
-              <div><strong>30+</strong><span>героев на выбор</span></div>
-              <div><strong>2</strong><span>формата под событие</span></div>
+            <div class="hero-facts" aria-label="Коротко о каталоге">
+              <div><strong>30+</strong><span>персонажей и ростовых героев</span></div>
+              <div><strong>10+</strong><span>шоу и дополнений</span></div>
+              <div><strong>4</strong><span>направления праздника</span></div>
             </div>
           </div>
-          <div class="hero-visual" aria-label="Праздник с аниматорами Чудо Зайка">
+          <div class="hero-visual" aria-label="Реальные праздники Чудо Зайка">
             <div class="hero-orbit hero-orbit--one" aria-hidden="true"></div>
             <div class="hero-orbit hero-orbit--two" aria-hidden="true"></div>
-            <div class="hero-photo-wrap">
-              <img src="./public/media/hero.jpg" alt="Аниматор и ребёнок с любимой куклой">
-              <span class="hero-photo-glow" aria-hidden="true"></span>
+            <div class="hero-collage">
+              <div class="hero-photo-wrap">
+                ${mediaStage("./public/media/hero-wide.jpg", "Большой праздник с мишкой Барни", "", "")}
+              </div>
+              <div class="hero-photo-small hero-photo-small--one">
+                ${mediaStage("./public/media/hero-lol.jpg", "Праздник с куклой LOL", "", "")}
+              </div>
+              <div class="hero-photo-small hero-photo-small--two">
+                ${mediaStage("./public/media/hero-action.jpg", "Игровая программа на открытой площадке", "", "")}
+              </div>
             </div>
-            <div class="floating-card floating-card--top"><span>✦</span> Настоящие эмоции</div>
+            <div class="floating-card floating-card--top"><span>30+</span> героев</div>
+            <div class="floating-card floating-card--right"><span>✦</span> реальные фото</div>
+            <div class="floating-card floating-card--left"><span>10+</span> шоу</div>
             <div class="floating-card floating-card--bottom"><span>24/7</span> заявка на сайте</div>
           </div>
         </div>
         <div class="ticker" aria-hidden="true">
-          <div>ЭКСПРЕСС-ПОЗДРАВЛЕНИЯ ✦ АНИМАТОРЫ ✦ ШОУ-ПРОГРАММЫ ✦ ЭКСПРЕСС-ПОЗДРАВЛЕНИЯ ✦ АНИМАТОРЫ ✦ ШОУ-ПРОГРАММЫ ✦</div>
+          <div class="ticker__track"><span>${tickerText}</span><span>${tickerText}</span></div>
         </div>
       </section>
 
-      <section id="formats" class="section formats-section">
+      <section id="directions" class="section formats-section">
         <div class="container">
           <div class="section-heading reveal">
-            <div><p class="eyebrow">С чего начать</p><h2>Два формата.<br>Один вау-эффект.</h2></div>
-            <p>Выберите масштаб события — дальше покажем подходящих героев и программы.</p>
+            <div><p class="eyebrow">Весь каталог</p><h2>Что устроим<br>на вашем празднике?</h2></div>
+            <p>Все направления разделены по смыслу. Экспресс — отдельная большая линейка персонажей, а шоу можно выбрать самостоятельно.</p>
           </div>
           <div class="format-grid">
             ${categories.map((category, index) => `
               <a class="format-card reveal" style="--delay:${index * 110}ms" href="#/catalog/${category.id}">
-                <img src="${category.image}" alt="" loading="lazy">
-                <span class="format-card__veil"></span>
-                <span class="format-card__number">0${index + 1}</span>
+                <span class="format-card__media">${mediaStage(category.image, category.title)}</span>
                 <span class="format-card__content">
+                  <span class="format-card__number">0${index + 1}</span>
                   <span class="format-card__eyebrow">${escapeHtml(category.eyebrow)}</span>
                   <strong>${escapeHtml(category.title)}</strong>
                   <span>${escapeHtml(category.description)}</span>
@@ -228,20 +251,20 @@ function renderHome() {
       <section class="section section--ink">
         <div class="container">
           <div class="section-heading reveal">
-            <div><p class="eyebrow">Экспресс-поздравления</p><h2>Сюрприз уже<br>через 10 минут</h2></div>
-            <a class="text-link" href="#/catalog/express">Все герои <span>${icons.arrow}</span></a>
+            <div><p class="eyebrow">Экспресс-поздравления</p><h2>Большая линейка<br>для короткого сюрприза</h2></div>
+            <a class="text-link" href="#/catalog/express">Все персонажи <span>${icons.arrow}</span></a>
           </div>
-          <div class="service-grid">${express.map((service, index) => serviceCard(service, index === 0)).join("")}</div>
+          <div class="service-grid">${express.map((service) => serviceCard(service)).join("")}</div>
         </div>
       </section>
 
       <section class="section party-preview">
         <div class="container">
           <div class="section-heading reveal">
-            <div><p class="eyebrow">Большие праздники</p><h2>Когда хочется<br>гулять по-крупному</h2></div>
-            <a class="text-link" href="#/catalog/party">Все программы <span>${icons.arrow}</span></a>
+            <div><p class="eyebrow">Шоу-программы</p><h2>Можно выбрать<br>отдельное шоу</h2></div>
+            <a class="text-link" href="#/catalog/shows">Все шоу <span>${icons.arrow}</span></a>
           </div>
-          <div class="service-grid">${party.map((service) => serviceCard(service)).join("")}</div>
+          <div class="service-grid">${shows.map((service) => serviceCard(service)).join("")}</div>
         </div>
       </section>
 
@@ -251,9 +274,8 @@ function renderHome() {
           <div class="steps-grid">
             ${steps.map((step, index) => `
               <article class="step-card reveal" style="--delay:${index * 90}ms">
-                <span>${escapeHtml(step.number)}</span>
-                <h3>${escapeHtml(step.title)}</h3>
-                <p>${escapeHtml(step.text)}</p>
+                <div class="step-card__top"><span>${escapeHtml(step.number)}</span><i aria-hidden="true">${escapeHtml(step.icon)}</i></div>
+                <div class="step-card__copy"><h3>${escapeHtml(step.title)}</h3><p>${escapeHtml(step.text)}</p></div>
               </article>
             `).join("")}
           </div>
@@ -292,6 +314,30 @@ function renderFinalCta() {
   `;
 }
 
+function renderCatalogGroups(categoryId) {
+  const groups = catalogGroups[categoryId] || [];
+  if (!groups.length) return "";
+  return `
+    <div class="catalog-groups">
+      <div class="section-heading reveal">
+        <div><p class="eyebrow">Все доступные образы</p><h2>${categoryId === "express" ? "Кого можно пригласить" : "Выберите любимого героя"}</h2></div>
+        <p>Список собран по полному экспорту канала. Конкретный костюм и свободное время подтвердим по заявке.</p>
+      </div>
+      <div class="catalog-group-grid">
+        ${groups.map((group, index) => `
+          <article class="catalog-group-card reveal" style="--delay:${index * 70}ms">
+            ${mediaStage(group.image, group.title, "catalog-group-card__media")}
+            <div class="catalog-group-card__body">
+              <h3>${escapeHtml(group.title)}</h3>
+              <div class="character-cloud">${group.items.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div>
+            </div>
+          </article>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
 function renderCatalog(categoryId) {
   const category = categories.find((item) => item.id === categoryId) || categories[0];
   const filtered = services.filter((service) => service.category === category.id);
@@ -310,8 +356,8 @@ function renderCatalog(categoryId) {
             <p class="hero-lead">${escapeHtml(category.description)}</p>
           </div>
           <div class="catalog-hero__art reveal" style="--delay:120ms">
-            <img src="${category.image}" alt="${escapeHtml(category.title)}">
-            <span aria-hidden="true"></span>
+            ${mediaStage(category.image, category.title, "catalog-hero__media", "")}
+            <span class="catalog-hero__orbit" aria-hidden="true"></span>
           </div>
         </div>
       </section>
@@ -320,6 +366,8 @@ function renderCatalog(categoryId) {
           <div class="catalog-switch reveal" role="navigation" aria-label="Формат праздника">
             ${categories.map((item) => `<a href="#/catalog/${item.id}" ${item.id === category.id ? 'aria-current="page"' : ""}>${escapeHtml(item.title)}</a>`).join("")}
           </div>
+          ${renderCatalogGroups(category.id)}
+          <div class="section-heading catalog-services-heading reveal"><div><p class="eyebrow">Можно добавить в заявку</p><h2>${category.id === "express" ? "Популярные экспресс-герои" : "Программы направления"}</h2></div></div>
           <div class="service-grid service-grid--catalog">${filtered.map((service) => serviceCard(service)).join("")}</div>
         </div>
       </section>
@@ -343,10 +391,10 @@ function renderService(id) {
         <div class="container detail-grid">
           <div class="detail-gallery reveal">
             <div class="detail-gallery__main">
-              <img src="${service.gallery[0]}" alt="${escapeHtml(service.title)}">
+              ${mediaStage(service.gallery[0], service.title, "detail-gallery__media", "")}
               <span class="detail-badge">${escapeHtml(service.badge)}</span>
             </div>
-            ${service.gallery.slice(1).length ? `<div class="detail-gallery__thumbs">${service.gallery.slice(1).map((image, index) => `<img src="${image}" alt="${escapeHtml(service.title)}, фотография ${index + 2}" loading="lazy">`).join("")}</div>` : ""}
+            ${service.gallery.slice(1).length ? `<div class="detail-gallery__thumbs">${service.gallery.slice(1).map((image, index) => mediaStage(image, `${service.title}, фотография ${index + 2}`, "detail-gallery__thumb")).join("")}</div>` : ""}
           </div>
           <div class="detail-copy reveal" style="--delay:100ms">
             <a class="back-link" href="#/catalog/${service.category}">← ${escapeHtml(categoryLabel(service.category))}</a>
@@ -455,7 +503,7 @@ function renderCart() {
               </form>
             </div>
           ` : `
-            <div class="empty-cart reveal"><span>✦</span><h2>Корзина пока пустая</h2><p>Выберите героя или шоу — всё добавится сюда, а затем уйдёт одной заявкой.</p><div><a class="button button--primary" href="#/catalog/express">Экспресс-поздравления</a><a class="button button--glass" href="#/catalog/party">Большие праздники</a></div></div>
+            <div class="empty-cart reveal"><span>✦</span><h2>Корзина пока пустая</h2><p>Выберите героя или шоу — всё добавится сюда, а затем уйдёт одной заявкой.</p><div><a class="button button--primary" href="#/catalog/express">Экспресс-поздравления</a><a class="button button--glass" href="#/catalog/shows">Шоу-программы</a></div></div>
           `}
         </div>
       </section>
@@ -580,10 +628,14 @@ async function render() {
 }
 
 onRouteChange(() => {
-  const run = () => render().catch((error) => {
+  const run = async () => {
+    await render();
+    window.scrollTo(0, 0);
+  };
+  const safeRun = () => run().catch((error) => {
     console.error(error);
     setNotice(error.message || "Не удалось открыть страницу", "error");
   });
-  if (document.startViewTransition) document.startViewTransition(run);
-  else run();
+  if (document.startViewTransition) document.startViewTransition(safeRun);
+  else safeRun();
 });

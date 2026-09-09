@@ -65,8 +65,10 @@ export function renderShell({ title, nav, content, cartCount = 0 }) {
           <span><strong>Чудо Зайка</strong><small>Владивосток · Приморский край</small></span>
         </a>
         <div class="footer-links">
+          <a href="#/catalog/animators">Аниматоры и персонажи</a>
           <a href="#/catalog/express">Экспресс-поздравления</a>
-          <a href="#/catalog/party">Праздники</a>
+          <a href="#/catalog/shows">Шоу-программы</a>
+          <a href="#/catalog/programs">Готовые программы</a>
           <a href="#/reviews">Отзывы</a>
         </div>
         <div class="footer-contact">
