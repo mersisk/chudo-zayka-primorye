@@ -14,7 +14,16 @@ function readLocal() {
 }
 
 function writeLocal(records) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  } catch {
+    throw new Error("Браузер не разрешил сохранить заявку. Освободите место или отключите приватный режим.");
+  }
+}
+
+function createId() {
+  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+  return `local-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
 function normalizeRecord(record) {
@@ -47,7 +56,7 @@ const localStore = {
   async create(recordType, payload, status = "new") {
     const now = new Date().toISOString();
     const record = normalizeRecord({
-      id: crypto.randomUUID(),
+      id: createId(),
       workspace_id: runtime().workspaceId || "airc-demo",
       record_type: recordType,
       payload,
@@ -81,7 +90,7 @@ const localStore = {
     const records = readLocal().filter((record) => record.record_type !== recordType);
     const now = Date.now();
     const seeded = seeds.map((seed, index) => normalizeRecord({
-      id: crypto.randomUUID(),
+      id: createId(),
       workspace_id: runtime().workspaceId || "airc-demo",
       record_type: recordType,
       payload: seed.payload,
@@ -116,8 +125,12 @@ function loadSession() {
 }
 
 function saveSession(session) {
-  if (session) localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-  else localStorage.removeItem(SESSION_KEY);
+  try {
+    if (session) localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    else localStorage.removeItem(SESSION_KEY);
+  } catch {
+    throw new Error("Не удалось сохранить сессию в браузере");
+  }
 }
 
 async function authRequest(path, body) {
@@ -212,7 +225,7 @@ const supabaseStore = {
     const publicSubmission = ["lead", "quiz_result"].includes(recordType);
     const now = new Date().toISOString();
     const row = {
-      id: crypto.randomUUID(),
+      id: createId(),
       workspace_id: cfg.workspaceId,
       record_type: recordType,
       payload,

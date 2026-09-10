@@ -1,6 +1,7 @@
 import { execFileSync, spawn } from "node:child_process";
 import { readdir, readFile } from "node:fs/promises";
 import { extname, join, resolve } from "node:path";
+import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
@@ -30,6 +31,20 @@ for (const file of files.filter((f) => [".js", ".mjs"].includes(extname(f)))) {
 
 for (const required of ["index.html", "src/app.js", "src/styles.css", "AGENTS.md", "CLAUDE.md", "PRODUCT.md"]) {
   if (!files.some((file) => file === join(root, required))) failures.push(`Нет обязательного файла: ${required}`);
+}
+
+try {
+  const { categories, services } = await import(join(root, "src/project.js"));
+  const references = [
+    ...categories.map((item) => item.image),
+    ...services.flatMap((item) => [item.image, ...(item.gallery || []), item.video].filter(Boolean)),
+  ];
+  for (const reference of new Set(references)) {
+    const absolute = join(root, reference.replace(/^\.\//, ""));
+    if (!existsSync(absolute)) failures.push(`Нет медиафайла из каталога: ${reference}`);
+  }
+} catch (error) {
+  failures.push(`Каталог: ${error instanceof Error ? error.message : String(error)}`);
 }
 
 try {
@@ -78,6 +93,7 @@ if (failures.length) {
 console.log("\nПроверка пройдена:");
 console.log("— синтаксис JavaScript");
 console.log("— обязательные файлы");
+console.log("— все медиафайлы каталога");
 console.log("— базовый поиск секретов");
 console.log("— локальный CRUD и публичная Supabase-вставка");
 console.log("— запуск локального сайта\n");

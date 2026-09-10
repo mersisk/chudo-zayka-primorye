@@ -1,4 +1,4 @@
-import { catalogGroups, categories, getService, project, reviews, services, steps } from "./project.js";
+import { catalogGroups, categories, currentOffer, getService, project, reviews, services, steps } from "./project.js";
 import { store } from "./data/store.js";
 import {
   escapeHtml,
@@ -32,13 +32,24 @@ function readCart() {
 }
 
 function writeCart(ids) {
-  localStorage.setItem(CART_KEY, JSON.stringify(ids));
+  try {
+    localStorage.setItem(CART_KEY, JSON.stringify(ids));
+  } catch {
+    throw new Error("Не удалось сохранить выбор в браузере");
+  }
 }
 
-function addToCart(id) {
+function addToCart(id, button) {
   const cart = readCart();
   if (!cart.includes(id)) cart.push(id);
   writeCart(cart);
+  if (button) {
+    button.classList.add("is-added");
+    button.setAttribute("aria-label", "Добавлено в заявку");
+    const marker = button.querySelector("span");
+    if (marker) marker.textContent = icons.check;
+    else button.textContent = icons.check;
+  }
   setNotice("Добавили в заявку");
   updateCartBadges();
 }
@@ -56,6 +67,11 @@ function updateCartBadges() {
 function formatPrice(value, prefix = "от") {
   if (value == null) return "Рассчитаем после заявки";
   return [prefix, `${new Intl.NumberFormat("ru-RU").format(value)} ₽`].filter(Boolean).join(" ");
+}
+
+function servicePrice(service, prefix = "от") {
+  const price = formatPrice(service.price, prefix);
+  return service.price != null && service.priceUnit ? `${price} ${service.priceUnit}` : price;
 }
 
 function nav(active) {
@@ -83,31 +99,19 @@ function mediaStage(image, alt, className = "", loading = "lazy") {
   `;
 }
 
-function mediaCallouts(items, className = "") {
-  return `
-    <span class="media-callouts ${className}" aria-label="Коротко о фотографии">
-      ${items.filter(Boolean).map((item, index) => `
-        <span class="media-callout media-callout--${index + 1}"><i aria-hidden="true">${icons.spark}</i>${escapeHtml(item)}</span>
-      `).join("")}
-    </span>
-  `;
-}
-
 function serviceCard(service, featured = false) {
   return `
     <article class="service-card tilt-card reveal ${featured ? "service-card--featured" : ""}">
       <a class="service-card__media" href="#/service/${encodeURIComponent(service.id)}" aria-label="Подробнее: ${escapeHtml(service.title)}">
         ${mediaStage(service.image, service.title)}
         <span class="media-shine" aria-hidden="true"></span>
-        <span class="service-card__badge">${escapeHtml(service.badge)}</span>
-        ${mediaCallouts([service.duration, "реальное фото"], "media-callouts--compact")}
       </a>
       <div class="service-card__body">
-        <p class="micro-label">${escapeHtml(categoryLabel(service.category))} · ${escapeHtml(service.duration)}</p>
+        <p class="micro-label">${escapeHtml(service.badge)} · ${escapeHtml(categoryLabel(service.category))} · ${escapeHtml(service.duration)}</p>
         <h3><a href="#/service/${encodeURIComponent(service.id)}">${escapeHtml(service.title)}</a></h3>
         <p>${escapeHtml(service.short)}</p>
         <div class="service-card__footer">
-          <strong>${formatPrice(service.price)}</strong>
+          <strong>${servicePrice(service)}</strong>
           <div class="service-card__actions">
             <a class="round-link" href="#/service/${encodeURIComponent(service.id)}" aria-label="Открыть ${escapeHtml(service.title)}">${icons.arrow}</a>
             <button class="icon-button add-to-cart" type="button" data-service-id="${escapeHtml(service.id)}" aria-label="Добавить ${escapeHtml(service.title)} в заявку">${icons.plus}</button>
@@ -145,7 +149,7 @@ function bindMotion() {
   }, { threshold: 0.12 });
   for (const node of qsa(".reveal")) observer.observe(node);
 
-  for (const card of qsa(".tilt-card")) {
+  if (matchMedia("(hover: hover) and (pointer: fine)").matches) for (const card of qsa(".tilt-card")) {
     card.addEventListener("pointermove", (event) => {
       const box = card.getBoundingClientRect();
       const x = (event.clientX - box.left) / box.width - 0.5;
@@ -175,7 +179,13 @@ function bindMotion() {
 
 function bindCommon() {
   for (const button of qsa(".add-to-cart")) {
-    button.addEventListener("click", () => addToCart(button.dataset.serviceId));
+    button.addEventListener("click", () => {
+      try {
+        addToCart(button.dataset.serviceId, button);
+      } catch (error) {
+        setNotice(error.message, "error");
+      }
+    });
   }
   updateCartBadges();
   bindMotion();
@@ -186,7 +196,8 @@ function renderHome() {
   const showIds = ["neon-show", "foam-party", "cryo-show", "silver-disco"];
   const express = expressIds.map(getService).filter(Boolean);
   const shows = showIds.map(getService).filter(Boolean);
-  const tickerText = "АНИМАТОРЫ ✦ ЭКСПРЕСС-ПОЗДРАВЛЕНИЯ ✦ ШОУ-ПРОГРАММЫ ✦ ВЫПУСКНЫЕ ✦ ";
+  const tickerItems = ["Аниматоры", "Экспресс-поздравления", "Шоу-программы", "Выпускные", "Услуги на мероприятии"];
+  const tickerGroup = tickerItems.map((item) => `<span class="ticker__item">${escapeHtml(item)} <i>${icons.spark}</i></span>`).join("");
 
   renderShell({
     title: `${project.name} — аниматорское агентство в Приморье`,
@@ -208,7 +219,7 @@ function renderHome() {
             <div class="hero-facts" aria-label="Коротко о каталоге">
               <div><strong>30+</strong><span>персонажей и ростовых героев</span></div>
               <div><strong>10+</strong><span>шоу и дополнений</span></div>
-              <div><strong>4</strong><span>направления праздника</span></div>
+              <div><strong>6</strong><span>направлений праздника</span></div>
             </div>
           </div>
           <div class="hero-visual" aria-label="Реальные праздники Чудо Зайка">
@@ -216,23 +227,32 @@ function renderHome() {
             <div class="hero-orbit hero-orbit--two" aria-hidden="true"></div>
             <div class="hero-collage">
               <div class="hero-photo-wrap">
-                ${mediaStage("./public/media/hero-wide.jpg", "Большой праздник с мишкой Барни", "", "")}
+                ${mediaStage("./public/media/catalog/graduations/photo-500.jpg", "Игровая программа на выпускном", "", "")}
               </div>
               <div class="hero-photo-small hero-photo-small--one">
-                ${mediaStage("./public/media/hero-lol.jpg", "Праздник с куклой LOL", "", "")}
+                ${mediaStage("./public/media/catalog/inflatables/labubu/photo-337.jpg", "Экспресс-поздравление с Лабубу", "", "")}
               </div>
               <div class="hero-photo-small hero-photo-small--two">
-                ${mediaStage("./public/media/hero-action.jpg", "Игровая программа на открытой площадке", "", "")}
+                ${mediaStage("./public/media/catalog/shows/neon/photo-559.jpg", "Неоновое шоу", "", "")}
               </div>
             </div>
-            <div class="floating-card floating-card--top"><span>30+</span> героев</div>
-            <div class="floating-card floating-card--right"><span>✦</span> реальные фото</div>
-            <div class="floating-card floating-card--left"><span>10+</span> шоу</div>
-            <div class="floating-card floating-card--bottom"><span>24/7</span> заявка на сайте</div>
           </div>
         </div>
         <div class="ticker" aria-hidden="true">
-          <div class="ticker__track"><span>${tickerText}</span><span>${tickerText}</span></div>
+          <div class="ticker__track"><div class="ticker__group">${tickerGroup}</div><div class="ticker__group">${tickerGroup}</div></div>
+        </div>
+      </section>
+
+      <section class="section latest-offer-section">
+        <div class="container latest-offer reveal">
+          <a class="latest-offer__media" href="#/service/${currentOffer.id}">${mediaStage(currentOffer.image, currentOffer.title)}</a>
+          <div class="latest-offer__copy">
+            <p class="eyebrow">Последнее предложение · 21–24 декабря</p>
+            <h2>Автобус<br>Деда Мороза</h2>
+            <p>Впервые в Большом Камне — часовое новогоднее приключение: танцы, песни, интерактивы и аттракцион эмоций. Каждому ребёнку — блеск-тату и новогодний коктейль. Бронирование: ${escapeHtml(project.phone)}.</p>
+            <strong>${servicePrice(currentOffer, "")} · места ограничены</strong>
+            <div class="latest-offer__actions"><a class="button button--primary" href="#/service/${currentOffer.id}">Смотреть предложение <span>${icons.arrow}</span></a><a class="button button--dark" href="${project.phoneHref}">Забронировать</a></div>
+          </div>
         </div>
       </section>
 
@@ -325,36 +345,40 @@ function renderFinalCta() {
   `;
 }
 
-function renderCatalogGroups(categoryId) {
+function renderCatalogGroups(categoryId, activeSubgroup = "") {
   const groups = catalogGroups[categoryId] || [];
   if (!groups.length) return "";
   return `
     <div class="catalog-groups">
       <div class="section-heading reveal">
-        <div><p class="eyebrow">Все доступные образы</p><h2>${categoryId === "express" ? "Кого можно пригласить" : "Выберите любимого героя"}</h2></div>
-        <p>Список собран по полному экспорту канала. Конкретный костюм и свободное время подтвердим по заявке.</p>
+        <div><p class="eyebrow">Выберите раздел</p><h2>${categoryId === "express" ? "Два вида экспресс-поздравлений" : "Для какого выпуска"}</h2></div>
+        <p>Внутри — отдельная карточка каждого героя или программы с подходящими фотографиями и видео.</p>
       </div>
       <div class="catalog-group-grid">
         ${groups.map((group, index) => `
-          <article class="catalog-group-card reveal" style="--delay:${index * 70}ms">
+          <a class="catalog-group-card reveal ${group.id === activeSubgroup ? "is-active" : ""}" style="--delay:${index * 70}ms" href="#/catalog/${categoryId}/${group.id}">
             <div class="catalog-group-card__visual">
               ${mediaStage(group.image, group.title, "catalog-group-card__media")}
-              ${mediaCallouts([`${group.items.length} образов`], "media-callouts--compact")}
             </div>
             <div class="catalog-group-card__body">
               <h3>${escapeHtml(group.title)}</h3>
-              <div class="character-cloud">${group.items.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div>
+              <p>${escapeHtml(group.description)}</p><span class="text-link">Открыть раздел ${icons.arrow}</span>
             </div>
-          </article>
+          </a>
         `).join("")}
       </div>
     </div>
   `;
 }
 
-function renderCatalog(categoryId) {
-  const category = categories.find((item) => item.id === categoryId) || categories[0];
-  const filtered = services.filter((service) => service.category === category.id);
+function renderCatalog(categoryId, subgroupId = "") {
+  const category = categories.find((item) => item.id === categoryId);
+  if (!category) return renderNotFound();
+  const groups = catalogGroups[category.id] || [];
+  if (subgroupId && !groups.some((group) => group.id === subgroupId)) return renderNotFound();
+  const filtered = services.filter((item) => item.category === category.id && (!subgroupId || item.subgroup === subgroupId));
+  const activeGroup = groups.find((group) => group.id === subgroupId);
+  const listTitle = activeGroup?.title || (category.id === "express" ? "Все экспресс-герои" : `Все: ${category.navTitle.toLowerCase()}`);
 
   renderShell({
     title: `${category.title} — ${project.name}`,
@@ -366,12 +390,11 @@ function renderCatalog(categoryId) {
           <div class="reveal">
             <a class="back-link" href="#/">← На главную</a>
             <p class="eyebrow">${escapeHtml(category.eyebrow)}</p>
-            <h1>${escapeHtml(category.title)}</h1>
+            <h1 class="${category.title.length > 18 ? "catalog-hero__title--long" : ""}">${escapeHtml(category.title)}</h1>
             <p class="hero-lead">${escapeHtml(category.description)}</p>
           </div>
           <div class="catalog-hero__art reveal" style="--delay:120ms">
             ${mediaStage(category.image, category.title, "catalog-hero__media", "")}
-            ${mediaCallouts([category.eyebrow, "реальные фото", `${filtered.length} вариантов в каталоге`])}
             <span class="catalog-hero__orbit" aria-hidden="true"></span>
           </div>
         </div>
@@ -381,8 +404,9 @@ function renderCatalog(categoryId) {
           <div class="catalog-switch reveal" role="navigation" aria-label="Формат праздника">
             ${categories.map((item) => `<a href="#/catalog/${item.id}" ${item.id === category.id ? 'aria-current="page"' : ""}>${escapeHtml(item.title)}</a>`).join("")}
           </div>
-          ${renderCatalogGroups(category.id)}
-          <div class="section-heading catalog-services-heading reveal"><div><p class="eyebrow">Можно добавить в заявку</p><h2>${category.id === "express" ? "Популярные экспресс-герои" : "Программы направления"}</h2></div></div>
+          ${renderCatalogGroups(category.id, subgroupId)}
+          ${subgroupId ? `<a class="back-link back-link--catalog" href="#/catalog/${category.id}">← Все разделы «${escapeHtml(category.title)}»</a>` : ""}
+          <div class="section-heading catalog-services-heading reveal"><div><p class="eyebrow">Каждый вариант — отдельно</p><h2>${escapeHtml(listTitle)}</h2></div><p>${filtered.length} ${filtered.length === 1 ? "вариант" : "вариантов"} с фотографиями из мероприятий.</p></div>
           <div class="service-grid service-grid--catalog">${filtered.map((service) => serviceCard(service)).join("")}</div>
         </div>
       </section>
@@ -392,10 +416,53 @@ function renderCatalog(categoryId) {
   bindCommon();
 }
 
+function renderSlide(slide, service, index) {
+  if (slide.type === "video") return `<div class="detail-carousel__slide" data-slide="${index}" ${index ? "hidden" : ""}><video controls playsinline preload="metadata" poster="${escapeHtml(service.image)}"><source src="${escapeHtml(slide.src)}">Ваш браузер не поддерживает видео.</video></div>`;
+  return `<div class="detail-carousel__slide" data-slide="${index}" ${index ? "hidden" : ""}>${mediaStage(slide.src, `${service.title}, фотография ${index + 1}`, "detail-gallery__media", index ? "lazy" : "")}${service.visualization && index === 0 ? '<span class="visualization-note">Визуализация программы</span>' : ""}</div>`;
+}
+
+function bindCarousel() {
+  const carousel = qs("[data-carousel]");
+  if (!carousel) return;
+  const slides = qsa("[data-slide]", carousel);
+  const thumbs = qsa("[data-slide-to]", carousel);
+  const counter = qs("[data-carousel-counter]", carousel);
+  let current = 0;
+  let pointerStart = null;
+  const show = (next) => {
+    current = (next + slides.length) % slides.length;
+    slides.forEach((slide, index) => {
+      slide.hidden = index !== current;
+      if (index !== current) qs("video", slide)?.pause();
+    });
+    thumbs.forEach((thumb, index) => thumb.setAttribute("aria-current", index === current ? "true" : "false"));
+    if (counter) counter.textContent = `${current + 1} / ${slides.length}`;
+  };
+  qs("[data-carousel-prev]", carousel)?.addEventListener("click", () => show(current - 1));
+  qs("[data-carousel-next]", carousel)?.addEventListener("click", () => show(current + 1));
+  thumbs.forEach((thumb) => thumb.addEventListener("click", () => show(Number(thumb.dataset.slideTo))));
+  carousel.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft") show(current - 1);
+    if (event.key === "ArrowRight") show(current + 1);
+  });
+  carousel.addEventListener("pointerdown", (event) => { pointerStart = event.clientX; });
+  carousel.addEventListener("pointerup", (event) => {
+    if (pointerStart == null) return;
+    const distance = event.clientX - pointerStart;
+    if (Math.abs(distance) > 45) show(current + (distance < 0 ? 1 : -1));
+    pointerStart = null;
+  });
+  show(0);
+}
+
 function renderService(id) {
   const service = getService(id);
   if (!service) return renderNotFound();
-  const related = services.filter((item) => item.category === service.category && item.id !== service.id).slice(0, 3);
+  const related = services.filter((item) => item.category === service.category && item.subgroup === service.subgroup && item.id !== service.id).slice(0, 3);
+  const slides = [
+    ...(service.gallery || [service.image]).map((src) => ({ type: "image", src })),
+    ...(service.video ? [{ type: "video", src: service.video }] : []),
+  ];
 
   renderShell({
     title: `${service.title} — ${project.name}`,
@@ -404,19 +471,18 @@ function renderService(id) {
     content: `
       <section class="detail-hero">
         <div class="container detail-grid">
-          <div class="detail-gallery reveal">
-            <div class="detail-gallery__main">
-              ${mediaStage(service.gallery[0], service.title, "detail-gallery__media", "")}
-              <span class="detail-badge">${escapeHtml(service.badge)}</span>
-              ${mediaCallouts([service.duration, "реальный праздник", "можно добавить в заявку"])}
+          <div class="detail-gallery detail-carousel reveal" data-carousel tabindex="0" aria-label="Галерея: ${escapeHtml(service.title)}">
+            <div class="detail-gallery__main">${slides.map((slide, index) => renderSlide(slide, service, index)).join("")}
+              ${slides.length > 1 ? `<button class="carousel-arrow carousel-arrow--prev" type="button" data-carousel-prev aria-label="Предыдущий материал">←</button><button class="carousel-arrow carousel-arrow--next" type="button" data-carousel-next aria-label="Следующий материал">→</button><span class="carousel-counter" data-carousel-counter>1 / ${slides.length}</span>` : ""}
             </div>
-            ${service.gallery.slice(1).length ? `<div class="detail-gallery__thumbs">${service.gallery.slice(1).map((image, index) => mediaStage(image, `${service.title}, фотография ${index + 2}`, "detail-gallery__thumb")).join("")}</div>` : ""}
+            ${slides.length > 1 ? `<div class="detail-gallery__thumbs">${slides.map((slide, index) => `<button type="button" class="detail-gallery__thumb" data-slide-to="${index}" aria-label="Открыть ${slide.type === "video" ? "видео" : `фотографию ${index + 1}`}" aria-current="${index === 0}">${mediaStage(slide.type === "video" ? service.image : slide.src, "", "detail-gallery__thumb-media")} ${slide.type === "video" ? '<span class="thumb-play">▶</span>' : ""}</button>`).join("")}</div>` : ""}
           </div>
           <div class="detail-copy reveal" style="--delay:100ms">
             <a class="back-link" href="#/catalog/${service.category}">← ${escapeHtml(categoryLabel(service.category))}</a>
+            <span class="detail-badge">${escapeHtml(service.badge)}</span>
             <p class="eyebrow">${escapeHtml(service.duration)}</p>
             <h1>${escapeHtml(service.title)}</h1>
-            <p class="detail-price">${formatPrice(service.price)}</p>
+            <p class="detail-price">${servicePrice(service)}</p>
             <p class="hero-lead">${escapeHtml(service.description)}</p>
             <div class="include-list">
               ${service.includes.map((item) => `<span><i>${icons.check}</i>${escapeHtml(item)}</span>`).join("")}
@@ -429,14 +495,6 @@ function renderService(id) {
           </div>
         </div>
       </section>
-      ${service.video ? `
-        <section class="section video-section">
-          <div class="container video-grid">
-            <div class="reveal"><p class="eyebrow">Живой момент</p><h2>Посмотрите,<br>как это выглядит</h2><p>Видео из реального праздника опубликовано в Telegram-канале агентства.</p></div>
-            <div class="video-shell reveal" style="--delay:120ms"><video controls playsinline preload="metadata" poster="${service.image}"><source src="${service.video}" type="video/mp4">Ваш браузер не поддерживает видео.</video></div>
-          </div>
-        </section>
-      ` : ""}
       <section class="section section--ink">
         <div class="container">
           <div class="section-heading reveal"><div><p class="eyebrow">Можно добавить</p><h2>Ещё варианты</h2></div></div>
@@ -446,6 +504,7 @@ function renderService(id) {
     `,
   });
   bindCommon();
+  bindCarousel();
 }
 
 function renderReviews() {
@@ -459,7 +518,6 @@ function renderReviews() {
           <div class="reveal"><p class="eyebrow">Отзывы клиентов</p><h1>После нас<br><em>остаются эмоции</em></h1><p class="hero-lead">Собрали живые впечатления из Telegram-канала агентства. Без имён и личных контактов.</p></div>
           <div class="reviews-hero__visual reveal" style="--delay:100ms">
             ${mediaStage("./public/media/hero-lol.jpg", "Эмоции детей на празднике", "reviews-hero__media", "")}
-            ${mediaCallouts(["живые эмоции", "реальные праздники", "отзывы из Telegram"])}
             <div class="reviews-score"><strong>5.0</strong><span>★★★★★</span><p>по опубликованным отзывам</p></div>
           </div>
         </div>
@@ -471,7 +529,6 @@ function renderReviews() {
         <div class="container proof-grid">
           <div class="proof-visual reveal">
             ${mediaStage("./public/media/bear-family.jpg", "Семейное поздравление с большим медведем", "proof-media")}
-            ${mediaCallouts(["семейный сюрприз", "фото на память"])}
           </div>
           <div class="reveal" style="--delay:100ms"><p class="eyebrow">Почему нас рекомендуют</p><h2>Слышим идею.<br>Берём праздник на себя.</h2><ul class="proof-list"><li>всегда остаёмся на связи до события;</li><li>подстраиваем программу под возраст и гостей;</li><li>привозим костюмы, реквизит и музыкальное сопровождение;</li><li>помогаем сохранить сюрприз до самого выхода героя.</li></ul></div>
         </div>
@@ -506,7 +563,7 @@ function renderCart() {
           ${items.length ? `
             <div class="cart-layout">
               <div class="cart-items reveal">
-                ${items.map((item) => `<article class="cart-item"><img src="${item.image}" alt=""><div><p>${escapeHtml(categoryLabel(item.category))}</p><h3>${escapeHtml(item.title)}</h3><span>${escapeHtml(item.duration)} · ${formatPrice(item.price)}</span></div><button class="remove-cart-item" data-service-id="${escapeHtml(item.id)}" type="button" aria-label="Убрать ${escapeHtml(item.title)}">×</button></article>`).join("")}
+                  ${items.map((item) => `<article class="cart-item"><img src="${item.image}" alt=""><div><p>${escapeHtml(categoryLabel(item.category))}</p><h3>${escapeHtml(item.title)}</h3><span>${escapeHtml(item.duration)} · ${servicePrice(item)}</span></div><button class="remove-cart-item" data-service-id="${escapeHtml(item.id)}" type="button" aria-label="Убрать ${escapeHtml(item.title)}">×</button></article>`).join("")}
                 ${cartSummary(items)}
               </div>
               <form id="request-form" class="request-form reveal" style="--delay:100ms" novalidate>
@@ -535,8 +592,12 @@ function renderCart() {
 
   for (const button of qsa(".remove-cart-item")) {
     button.addEventListener("click", () => {
-      removeFromCart(button.dataset.serviceId);
-      renderCart();
+      try {
+        removeFromCart(button.dataset.serviceId);
+        renderCart();
+      } catch (error) {
+        setNotice(error.message, "error");
+      }
     });
   }
 
@@ -551,7 +612,7 @@ function renderCart() {
       city: String(data.get("city") || "").trim(),
       childAge: String(data.get("childAge") || "").trim(),
       comment: String(data.get("comment") || "").trim(),
-      items: items.map((item) => ({ id: item.id, title: item.title, price: item.price })),
+      items: items.map((item) => ({ id: item.id, title: item.title, category: item.category, duration: item.duration, image: item.image, price: item.price, priceUnit: item.priceUnit || null })),
       knownTotal: items.reduce((sum, item) => sum + (item.price || 0), 0),
     };
     const error = qs("#form-error");
@@ -645,7 +706,10 @@ async function render() {
   if (current === "/cart") return renderCart();
   if (current === "/thanks") return renderThanks();
   if (current === "/workspace") return renderWorkspace();
-  if (current.startsWith("/catalog/")) return renderCatalog(current.split("/")[2]);
+  if (current.startsWith("/catalog/")) {
+    const [, , categoryId, subgroupId = ""] = current.split("/");
+    return renderCatalog(categoryId, subgroupId);
+  }
   if (current.startsWith("/service/")) return renderService(decodeURIComponent(current.split("/")[2] || ""));
   return renderNotFound();
 }

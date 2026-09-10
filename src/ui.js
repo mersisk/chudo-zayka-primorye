@@ -48,9 +48,10 @@ export function renderShell({ title, nav, content, cartCount = 0 }) {
           <img src="./public/media/logo.jpg" alt="">
           <span><strong>Чудо Зайка</strong><small>аниматорское агентство</small></span>
         </a>
-        <nav class="nav" aria-label="Главная навигация">
+        <nav id="site-nav" class="nav" aria-label="Главная навигация">
           ${nav.map((item) => `<a href="${item.href}" ${item.active ? 'aria-current="page"' : ""}>${escapeHtml(item.label)}</a>`).join("")}
         </nav>
+        <button class="menu-toggle" type="button" aria-label="Открыть меню" aria-controls="site-nav" aria-expanded="false"><span></span><span></span><span></span><b>Меню</b></button>
         <a class="cart-link" href="#/cart" data-cart-link aria-label="Открыть заявку, выбрано: ${cartCount}">
           <span>Заявка</span><b data-cart-count>${cartCount}</b>
         </a>
@@ -68,7 +69,9 @@ export function renderShell({ title, nav, content, cartCount = 0 }) {
           <a href="#/catalog/animators">Аниматоры и персонажи</a>
           <a href="#/catalog/express">Экспресс-поздравления</a>
           <a href="#/catalog/shows">Шоу-программы</a>
-          <a href="#/catalog/programs">Готовые программы</a>
+          <a href="#/catalog/graduations">Выпускные</a>
+          <a href="#/catalog/services">Услуги на мероприятии</a>
+          <a href="#/catalog/programs">Пакеты и предложения</a>
           <a href="#/reviews">Отзывы</a>
         </div>
         <div class="footer-contact">
@@ -79,6 +82,18 @@ export function renderShell({ title, nav, content, cartCount = 0 }) {
       <div class="footer-bottom"><span>© 2024–2026 «Чудо Зайка»</span><span>Заявки сейчас сохраняются локально</span></div>
     </footer>
   `;
+  const menu = qs(".menu-toggle", root);
+  const siteNav = qs("#site-nav", root);
+  menu?.addEventListener("click", () => {
+    const open = menu.getAttribute("aria-expanded") !== "true";
+    menu.setAttribute("aria-expanded", String(open));
+    menu.setAttribute("aria-label", open ? "Закрыть меню" : "Открыть меню");
+    siteNav?.classList.toggle("is-open", open);
+  });
+  for (const link of qsa("#site-nav a", root)) link.addEventListener("click", () => {
+    menu?.setAttribute("aria-expanded", "false");
+    siteNav?.classList.remove("is-open");
+  });
 }
 
 export function route() {

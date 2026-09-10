@@ -71,6 +71,17 @@ async function testPublicSupabaseInsert() {
   assert.equal(captured.options.headers.Authorization, undefined);
 }
 
+async function testLocalStorageFailure() {
+  globalThis.localStorage = {
+    getItem() { return null; },
+    setItem() { throw new Error("quota"); },
+    removeItem() {},
+  };
+  globalThis.window = { AIRC_RUNTIME: { dataMode: "local", workspaceId: "airc-demo" } };
+  const { store } = await import(`${storeUrl}?test=storage-failure-${Date.now()}`);
+  await assert.rejects(() => store.create("lead", { name: "Тест" }), /Браузер не разрешил сохранить заявку/);
+}
+
 async function testAuthenticatedSupabaseRequest() {
   globalThis.localStorage = new MemoryStorage();
   globalThis.localStorage.setItem("airc_supabase_session_v1", JSON.stringify({
@@ -103,6 +114,7 @@ async function testAuthenticatedSupabaseRequest() {
 }
 
 await testLocal();
+await testLocalStorageFailure();
 await testPublicSupabaseInsert();
 await testAuthenticatedSupabaseRequest();
 console.log("Store smoke-test пройден");
