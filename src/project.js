@@ -11,7 +11,7 @@ export const project = {
 const media = (path) => `./public/media/catalog/${path}`;
 
 export const categories = [
-  { id: "animators", navTitle: "Герои", title: "Аниматоры и герои", eyebrow: "30+ образов", description: "Каждый персонаж — отдельная карточка с фотографиями из реальных праздников.", image: media("animator-cards/photo-394.jpg") },
+  { id: "animators", navTitle: "Герои", title: "Аниматоры и герои", eyebrow: "22 героя", description: "Каждый персонаж — отдельная карточка с фотографиями из реальных праздников.", image: media("animator-cards/photo-394.jpg") },
   { id: "express", navTitle: "Экспресс", title: "Экспресс-поздравления", eyebrow: "10–15 минут", description: "Два самостоятельных направления: гигантские костюмы и звёздные образы.", image: media("inflatables/white-bear/photo-056.jpg") },
   { id: "shows", navTitle: "Шоу", title: "Шоу-программы", eyebrow: "9 форматов", description: "Пена, неон, крио, пузыри, серебро, поролон, шары, вода и краски Холи.", image: media("shows/neon/photo-559.jpg") },
   { id: "graduations", navTitle: "Выпускные", title: "Выпускные", eyebrow: "4 · 9 · 11 классы", description: "Отдельные программы после 4, 9 и 11 класса и готовые большие пакеты.", image: media("graduations/photo-500.jpg") },
@@ -20,6 +20,11 @@ export const categories = [
 ];
 
 export const catalogGroups = {
+  animators: [
+    { id: "cartoons", title: "Мультгерои", description: "Любимые персонажи мультфильмов и игр для активной программы.", image: media("animator-cards/photo-147.jpg") },
+    { id: "superheroes", title: "Супергерои", description: "Сильные герои, испытания и командные приключения.", image: media("animator-cards/photo-394.jpg") },
+    { id: "fairytale", title: "Сказочные герои", description: "Волшебные образы, пираты и яркие ведущие для сюжетного праздника.", image: media("animator-cards/photo-547.jpg") },
+  ],
   express: [
     { id: "inflatables", title: "Гигантские костюмы", description: "Надувные и ростовые герои для эффектного короткого выхода.", image: media("inflatables/white-bear/photo-056.jpg") },
     { id: "stars", title: "Звёзды", description: "Музыкальные пародийные образы с личным поздравлением.", image: media("stars/arthur/cover.png") },
@@ -28,6 +33,19 @@ export const catalogGroups = {
     { id: "grade-4", title: "После 4 класса", description: "Первый большой школьный выпускной.", image: media("graduations/photo-249.jpg") },
     { id: "grade-9", title: "После 9 класса", description: "Драйвовая программа для подростков.", image: media("graduations/photo-496.jpg") },
     { id: "grade-11", title: "После 11 класса", description: "Финальный школьный праздник с большим шоу.", image: media("graduations/photo-557.jpg") },
+    { id: "packages", title: "Пакеты выпускных", description: "Готовые программы с ведущими, музыкой и большим финалом.", image: media("graduations/photo-500.jpg") },
+  ],
+  shows: [
+    { id: "outdoor", title: "Праздник на улице", description: "Пена, вода и краски Холи для тёплого сезона.", image: media("shows/foam/cover-offer.jpg") },
+    { id: "discos", title: "Дискотеки", description: "Неоновая и серебряная программы с музыкой и танцами.", image: media("shows/silver/cover-offer.jpg") },
+    { id: "interactive", title: "Интерактивные шоу", description: "Пузыри, крио-эффекты, поролон и воздушные приключения.", image: media("shows/bubbles/photo-554.jpg") },
+  ],
+  services: [
+    { id: "stations", title: "Выездные станции", description: "Аквагрим, сладкая вата и попкорн с оборудованием и оператором.", image: media("services/aqua-face-painting/photo-380.jpg") },
+  ],
+  programs: [
+    { id: "seasonal", title: "Сезонные предложения", description: "Ограниченные по датам программы и специальные события.", image: media("santa-bus/cover.jpg") },
+    { id: "packages", title: "Праздник под ключ", description: "Герои, ведущие, шоу и услуги в одном сценарии.", image: media("graduations/photo-500.jpg") },
   ],
 };
 
@@ -76,17 +94,13 @@ export const services = [
   star("vlad-a4", "Влад А4", media("stars/vlad-a4/photo-052.jpg")),
   star("instasamka", "Инстасамка", "./public/media/stars.jpg", [], null, { badge: "Образ по запросу", short: "Яркое экспресс-поздравление в образе Инстасамки. Актуальное фото костюма подтвердим перед заказом." }),
 
-  inflatable("white-bear", "Белый мишка-гигант", media("inflatables/white-bear/photo-056.jpg"), [media("inflatables/white-bear/photo-067.jpg"), media("inflatables/white-bear/photo-111.jpg"), media("inflatables/white-bear/photo-354.jpg"), media("inflatables/white-bear/photo-356.jpg")], media("inflatables/white-bear/performance.m4v"), { badge: "До 3 метров" }),
-  inflatable("plombir-snezhok", "Мишка Пломбир / Снежок", media("inflatables/white-bear/photo-111.jpg"), [media("inflatables/white-bear/photo-354.jpg")], null, { badge: "До 2,6 метра" }),
+  inflatable("white-bear", "Белый мишка-гигант «Снежок»", media("inflatables/white-bear/photo-056.jpg"), [media("inflatables/white-bear/photo-067.jpg"), media("inflatables/white-bear/photo-111.jpg"), media("inflatables/white-bear/photo-354.jpg"), media("inflatables/white-bear/photo-356.jpg")], media("inflatables/white-bear/performance.m4v"), { badge: "До 3 метров" }),
   inflatable("barney", "Мишка Барни", media("inflatables/brown-bear/photo-564.jpg"), [], media("inflatables/brown-bear/performance.m4v")),
   inflatable("shiny-bear", "Блестящий мишка", media("inflatables/shiny-bear/photo-047.jpg"), [media("inflatables/shiny-bear/photo-193.jpg")], media("inflatables/shiny-bear/performance.m4v")),
   inflatable("gorilla", "Горилла / Кинг-Конг", media("inflatables/gorilla/photo-551.jpg"), [], media("inflatables/gorilla/performance.m4v")),
   inflatable("labubu-express", "Лабубу", media("inflatables/labubu/photo-337.jpg"), [media("inflatables/labubu/photo-468.jpg")], media("inflatables/labubu/performance.m4v")),
   inflatable("pink-bunny", "Розовый зайка", media("inflatables/pink-bunny/photo-159.jpg"), [media("inflatables/pink-bunny/photo-175.jpg"), media("inflatables/pink-bunny/photo-177.jpg"), media("inflatables/pink-bunny/photo-513.jpg")], media("inflatables/pink-bunny/performance.m4v")),
   inflatable("cheburashka-express", "Чебурашка", media("inflatables/cheburashka/photo-016.jpg"), [media("inflatables/cheburashka/photo-021.jpg"), media("inflatables/cheburashka/photo-459.jpg")], media("inflatables/cheburashka/performance.m4v")),
-  inflatable("lol-express", "Кукла LOL", media("inflatables/lol/photo-124.jpg"), [media("inflatables/lol/photo-276.jpg"), media("inflatables/lol/photo-479.jpg")]),
-  inflatable("gonshik-express", "Гонщик", media("inflatables/gonshik/photo-153.jpg")),
-
   animator("rosa-barboskina", "Роза Барбоскина", media("animator-cards/photo-147.jpg")),
   animator("marshal", "Маршал", media("animator-cards/photo-148.jpg")), animator("gonshik", "Гонщик", media("inflatables/gonshik/photo-153.jpg")),
   animator("three-cats", "Три Кота", media("animator-cards/photo-509.jpg")), animator("rozochka", "Розочка", media("animator-cards/photo-161.jpg")),
@@ -96,22 +110,23 @@ export const services = [
   animator("lady-bug", "Леди Баг", media("animator-cards/photo-154.jpg"), "superheroes"), animator("spider-man", "Человек-паук", media("animator-cards/photo-394.jpg"), "superheroes"),
   animator("black-panther", "Чёрная Пантера", media("animator-cards/photo-167.jpg"), "superheroes"), animator("optimus-prime", "Оптимус Прайм", media("animator-cards/photo-155.jpg"), "superheroes"),
   animator("bumblebee", "Бамблби", media("animator-cards/photo-136.jpg"), "superheroes"), animator("minion", "Миньон", media("animator-cards/photo-152.jpg")),
-  animator("elsa", "Эльза", media("animator-cards/photo-547.jpg"), "fairytale"), animator("lol-pranksta", "LOL Pranksta", media("inflatables/lol/photo-276.jpg")),
-  animator("pink-bunny-animator", "Розовая Зайка", media("inflatables/pink-bunny/photo-159.jpg")), animator("labubu-animator", "Лабубу", media("inflatables/labubu/photo-337.jpg")),
-  animator("cheburashka-animator", "Чебурашка", media("inflatables/cheburashka/photo-016.jpg")), animator("simka-nolik", "Симка и Нолик", media("animator-cards/shared-catalog-163.jpg")),
+  animator("elsa", "Эльза", media("animator-cards/photo-547.jpg"), "fairytale"), animator("lol-pranksta", "Кукла LOL", media("inflatables/lol/photo-276.jpg"), "cartoons", {
+    gallery: [media("inflatables/lol/photo-276.jpg"), media("inflatables/lol/photo-124.jpg"), media("inflatables/lol/photo-479.jpg")],
+  }),
+  animator("simka-nolik", "Симка и Нолик", media("animator-cards/shared-catalog-163.jpg")),
   animator("pirates", "Пираты", media("animator-cards/shared-catalog-163.jpg"), "fairytale"), animator("clown-lelya", "Клоуниха Лёля", media("animator-cards/shared-catalog-163.jpg"), "fairytale"),
 
-  show("foam-party", "Пенная вечеринка", "./public/media/foam-cover-generated.jpg", "Море пены, музыка и активные игры на открытой площадке.", {
-    gallery: ["./public/media/foam-cover-generated.jpg", media("shows/foam/photo-486.jpg")], visualization: true, badge: "Летний хит", includes: ["пенная установка", "ведущий", "музыка", "игры в пене"],
+  show("foam-party", "Пенная вечеринка", media("shows/foam/cover-offer.jpg"), "Море пены, музыка и активные игры на открытой площадке.", {
+    subgroup: "outdoor", gallery: [media("shows/foam/cover-offer.jpg"), media("shows/foam/photo-486.jpg")], badge: "Летний хит", includes: ["пенная установка", "ведущий", "музыка", "игры в пене"],
   }),
-  show("neon-show", "Неоновое шоу", media("shows/neon/photo-559.jpg"), "Светящийся реквизит, трендовые игры и дискотека в темноте."),
-  show("silver-disco", "Серебряная дискотека", media("shows/silver/photo-400.jpg"), "Сияющая фольга, музыка и танцы внутри серебряного вихря."),
-  show("foam-blocks-show", "Поролоновое шоу", media("shows/foam-blocks/photo-558.jpg"), "Огромные мягкие кубики и безопасные командные игры."),
-  show("cryo-show", "Крио-шоу", media("shows/cryo/photo-572.jpg"), "Густой туман, эффектные опыты и научный интерактив.", { price: 7500 }),
-  show("bubble-show", "Шоу мыльных пузырей", media("shows/bubbles/photo-554.jpg"), "Гигантские пузыри, трюки и участие детей и взрослых."),
-  show("balloon-show", "Остров Надувляндия", media("shows/balloons/photo-566.jpg"), "Сюжетное приключение с волшебными шарами и заданиями."),
-  show("water-battle", "Водная битва", media("shows/water/photo-560.jpg"), "Летние водные челленджи и командные испытания."),
-  show("holi-colors", "Фестиваль красок Холи", media("shows/holi/photo-531.jpg"), "Общий цветной взрыв и яркие фотографии на память."),
+  show("neon-show", "Неоновое шоу", media("shows/neon/photo-559.jpg"), "Светящийся реквизит, трендовые игры и дискотека в темноте.", { subgroup: "discos" }),
+  show("silver-disco", "Серебряная дискотека", media("shows/silver/cover-offer.jpg"), "Сияющая фольга, музыка и танцы внутри серебряного вихря.", { subgroup: "discos", gallery: [media("shows/silver/cover-offer.jpg"), media("shows/silver/photo-400.jpg")] }),
+  show("foam-blocks-show", "Поролоновое шоу", media("shows/foam-blocks/photo-558.jpg"), "Огромные мягкие кубики и безопасные командные игры.", { subgroup: "interactive" }),
+  show("cryo-show", "Крио-шоу", media("shows/cryo/photo-572.jpg"), "Густой туман, эффектные опыты и научный интерактив.", { subgroup: "interactive", price: 7500 }),
+  show("bubble-show", "Шоу мыльных пузырей", media("shows/bubbles/photo-554.jpg"), "Гигантские пузыри, трюки и участие детей и взрослых.", { subgroup: "interactive" }),
+  show("balloon-show", "Остров Надувляндия", media("shows/balloons/photo-566.jpg"), "Сюжетное приключение с волшебными шарами и заданиями.", { subgroup: "interactive" }),
+  show("water-battle", "Водная битва", media("shows/water/photo-560.jpg"), "Летние водные челленджи и командные испытания.", { subgroup: "outdoor" }),
+  show("holi-colors", "Фестиваль красок Холи", media("shows/holi/photo-531.jpg"), "Общий цветной взрыв и яркие фотографии на память.", { subgroup: "outdoor" }),
 
   service({ id: "graduation-grade-4", category: "graduations", subgroup: "grade-4", title: "Выпускной после 4 класса", badge: "Начальная школа", duration: "от 60 минут", image: media("graduations/photo-249.jpg"), gallery: [media("graduations/photo-249.jpg"), media("graduations/photo-500.jpg")], video: media("graduations/performance.m4v"), short: "Игры, музыка и общий яркий финал для первого школьного выпускного.", description: "Программа для класса после 4 класса с ведущими, диджеем, интерактивами и выбранным шоу.", includes: ["два ведущих", "диджей и звук", "игры для класса", "праздничный финал"] }),
   service({ id: "graduation-grade-9", category: "graduations", subgroup: "grade-9", title: "Выпускной после 9 класса", badge: "Для подростков", duration: "от 60 минут", image: media("graduations/photo-496.jpg"), gallery: [media("graduations/photo-496.jpg"), media("graduations/photo-497.jpg"), media("graduations/photo-483.jpg")], short: "Драйвовый выпускной с ведущими, диджеем и современными интерактивами.", description: "Подростковая программа после 9 класса: музыка, челленджи, командные задания и шоу на выбор.", includes: ["два ведущих", "диджей и звук", "интерактивы", "шоу на выбор"] }),

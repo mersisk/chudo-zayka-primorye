@@ -99,12 +99,23 @@ function mediaStage(image, alt, className = "", loading = "lazy") {
   `;
 }
 
+function mediaCallouts(items, className = "") {
+  return `
+    <span class="media-callouts ${className}" aria-label="Коротко о фотографии">
+      ${items.filter(Boolean).map((item, index) => `
+        <span class="media-callout media-callout--${index + 1}"><i aria-hidden="true">${icons.spark}</i>${escapeHtml(item)}</span>
+      `).join("")}
+    </span>
+  `;
+}
+
 function serviceCard(service, featured = false) {
   return `
     <article class="service-card tilt-card reveal ${featured ? "service-card--featured" : ""}">
       <a class="service-card__media" href="#/service/${encodeURIComponent(service.id)}" aria-label="Подробнее: ${escapeHtml(service.title)}">
         ${mediaStage(service.image, service.title)}
         <span class="media-shine" aria-hidden="true"></span>
+        ${mediaCallouts([service.duration, "реальное фото"], "media-callouts--compact")}
       </a>
       <div class="service-card__body">
         <p class="micro-label">${escapeHtml(service.badge)} · ${escapeHtml(categoryLabel(service.category))} · ${escapeHtml(service.duration)}</p>
@@ -228,6 +239,7 @@ function renderHome() {
             <div class="hero-collage">
               <div class="hero-photo-wrap">
                 ${mediaStage("./public/media/catalog/graduations/photo-500.jpg", "Игровая программа на выпускном", "", "")}
+                ${mediaCallouts(["живые эмоции", "реальные праздники", "всё под ключ"])}
               </div>
               <div class="hero-photo-small hero-photo-small--one">
                 ${mediaStage("./public/media/catalog/inflatables/labubu/photo-337.jpg", "Экспресс-поздравление с Лабубу", "", "")}
@@ -245,7 +257,7 @@ function renderHome() {
 
       <section class="section latest-offer-section">
         <div class="container latest-offer reveal">
-          <a class="latest-offer__media" href="#/service/${currentOffer.id}">${mediaStage(currentOffer.image, currentOffer.title)}</a>
+          <a class="latest-offer__media" href="#/service/${currentOffer.id}">${mediaStage(currentOffer.image, currentOffer.title)}${mediaCallouts(["21–24 декабря", "1 900 ₽ с человека"], "media-callouts--compact")}</a>
           <div class="latest-offer__copy">
             <p class="eyebrow">Последнее предложение · 21–24 декабря</p>
             <h2>Автобус<br>Деда Мороза</h2>
@@ -345,27 +357,38 @@ function renderFinalCta() {
   `;
 }
 
-function renderCatalogGroups(categoryId, activeSubgroup = "") {
+function renderCatalogGroups(categoryId) {
   const groups = catalogGroups[categoryId] || [];
   if (!groups.length) return "";
+  const headings = {
+    animators: "Выберите тип героев",
+    express: "Два вида экспресс-поздравлений",
+    shows: "Выберите формат шоу",
+    graduations: "Для какого выпуска",
+    services: "Выберите услугу",
+    programs: "Выберите программу",
+  };
   return `
     <div class="catalog-groups">
       <div class="section-heading reveal">
-        <div><p class="eyebrow">Выберите раздел</p><h2>${categoryId === "express" ? "Два вида экспресс-поздравлений" : "Для какого выпуска"}</h2></div>
+        <div><p class="eyebrow">Выберите раздел</p><h2>${escapeHtml(headings[categoryId] || "Выберите раздел")}</h2></div>
         <p>Внутри — отдельная карточка каждого героя или программы с подходящими фотографиями и видео.</p>
       </div>
       <div class="catalog-group-grid">
-        ${groups.map((group, index) => `
-          <a class="catalog-group-card reveal ${group.id === activeSubgroup ? "is-active" : ""}" style="--delay:${index * 70}ms" href="#/catalog/${categoryId}/${group.id}">
+        ${groups.map((group, index) => {
+          const count = services.filter((item) => item.category === categoryId && item.subgroup === group.id).length;
+          return `
+          <a class="catalog-group-card reveal" style="--delay:${index * 70}ms" href="#/catalog/${categoryId}/${group.id}">
             <div class="catalog-group-card__visual">
               ${mediaStage(group.image, group.title, "catalog-group-card__media")}
+              ${mediaCallouts([`${count} ${count === 1 ? "вариант" : "вариантов"}`], "media-callouts--compact")}
             </div>
             <div class="catalog-group-card__body">
               <h3>${escapeHtml(group.title)}</h3>
               <p>${escapeHtml(group.description)}</p><span class="text-link">Открыть раздел ${icons.arrow}</span>
             </div>
           </a>
-        `).join("")}
+        `;}).join("")}
       </div>
     </div>
   `;
@@ -378,23 +401,27 @@ function renderCatalog(categoryId, subgroupId = "") {
   if (subgroupId && !groups.some((group) => group.id === subgroupId)) return renderNotFound();
   const filtered = services.filter((item) => item.category === category.id && (!subgroupId || item.subgroup === subgroupId));
   const activeGroup = groups.find((group) => group.id === subgroupId);
-  const listTitle = activeGroup?.title || (category.id === "express" ? "Все экспресс-герои" : `Все: ${category.navTitle.toLowerCase()}`);
+  const heroTitle = activeGroup?.title || category.title;
+  const heroDescription = activeGroup?.description || category.description;
+  const heroImage = activeGroup?.image || category.image;
+  const totalCount = services.filter((item) => item.category === category.id).length;
 
   renderShell({
-    title: `${category.title} — ${project.name}`,
+    title: `${heroTitle} — ${project.name}`,
     nav: nav(category.id),
     cartCount: readCart().length,
     content: `
       <section class="catalog-hero">
         <div class="container catalog-hero__grid">
           <div class="reveal">
-            <a class="back-link" href="#/">← На главную</a>
-            <p class="eyebrow">${escapeHtml(category.eyebrow)}</p>
-            <h1 class="${category.title.length > 18 ? "catalog-hero__title--long" : ""}">${escapeHtml(category.title)}</h1>
-            <p class="hero-lead">${escapeHtml(category.description)}</p>
+            <a class="back-link" href="${activeGroup ? `#/catalog/${category.id}` : "#/"}">← ${activeGroup ? `Все разделы «${escapeHtml(category.title)}»` : "На главную"}</a>
+            <p class="eyebrow">${escapeHtml(activeGroup ? `${filtered.length} вариантов` : category.eyebrow)}</p>
+            <h1 class="${heroTitle.length > 18 ? "catalog-hero__title--long" : ""}">${escapeHtml(heroTitle)}</h1>
+            <p class="hero-lead">${escapeHtml(heroDescription)}</p>
           </div>
           <div class="catalog-hero__art reveal" style="--delay:120ms">
-            ${mediaStage(category.image, category.title, "catalog-hero__media", "")}
+            ${mediaStage(heroImage, heroTitle, "catalog-hero__media", "")}
+            ${mediaCallouts([activeGroup?.title || category.eyebrow, "реальное фото", `${activeGroup ? filtered.length : totalCount} вариантов`])}
             <span class="catalog-hero__orbit" aria-hidden="true"></span>
           </div>
         </div>
@@ -404,10 +431,10 @@ function renderCatalog(categoryId, subgroupId = "") {
           <div class="catalog-switch reveal" role="navigation" aria-label="Формат праздника">
             ${categories.map((item) => `<a href="#/catalog/${item.id}" ${item.id === category.id ? 'aria-current="page"' : ""}>${escapeHtml(item.title)}</a>`).join("")}
           </div>
-          ${renderCatalogGroups(category.id, subgroupId)}
-          ${subgroupId ? `<a class="back-link back-link--catalog" href="#/catalog/${category.id}">← Все разделы «${escapeHtml(category.title)}»</a>` : ""}
-          <div class="section-heading catalog-services-heading reveal"><div><p class="eyebrow">Каждый вариант — отдельно</p><h2>${escapeHtml(listTitle)}</h2></div><p>${filtered.length} ${filtered.length === 1 ? "вариант" : "вариантов"} с фотографиями из мероприятий.</p></div>
-          <div class="service-grid service-grid--catalog">${filtered.map((service) => serviceCard(service)).join("")}</div>
+          ${activeGroup ? `
+            <div class="section-heading catalog-services-heading reveal"><div><p class="eyebrow">Каждый вариант — отдельно</p><h2>${escapeHtml(activeGroup.title)}</h2></div><p>${filtered.length} ${filtered.length === 1 ? "вариант" : "вариантов"} с фотографиями из мероприятий.</p></div>
+            <div class="service-grid service-grid--catalog">${filtered.map((service) => serviceCard(service)).join("")}</div>
+          ` : renderCatalogGroups(category.id)}
         </div>
       </section>
       ${renderFinalCta()}
@@ -473,12 +500,13 @@ function renderService(id) {
         <div class="container detail-grid">
           <div class="detail-gallery detail-carousel reveal" data-carousel tabindex="0" aria-label="Галерея: ${escapeHtml(service.title)}">
             <div class="detail-gallery__main">${slides.map((slide, index) => renderSlide(slide, service, index)).join("")}
+              ${mediaCallouts([service.duration, "реальный праздник", "можно добавить в заявку"])}
               ${slides.length > 1 ? `<button class="carousel-arrow carousel-arrow--prev" type="button" data-carousel-prev aria-label="Предыдущий материал">←</button><button class="carousel-arrow carousel-arrow--next" type="button" data-carousel-next aria-label="Следующий материал">→</button><span class="carousel-counter" data-carousel-counter>1 / ${slides.length}</span>` : ""}
             </div>
             ${slides.length > 1 ? `<div class="detail-gallery__thumbs">${slides.map((slide, index) => `<button type="button" class="detail-gallery__thumb" data-slide-to="${index}" aria-label="Открыть ${slide.type === "video" ? "видео" : `фотографию ${index + 1}`}" aria-current="${index === 0}">${mediaStage(slide.type === "video" ? service.image : slide.src, "", "detail-gallery__thumb-media")} ${slide.type === "video" ? '<span class="thumb-play">▶</span>' : ""}</button>`).join("")}</div>` : ""}
           </div>
           <div class="detail-copy reveal" style="--delay:100ms">
-            <a class="back-link" href="#/catalog/${service.category}">← ${escapeHtml(categoryLabel(service.category))}</a>
+            <a class="back-link" href="#/catalog/${service.category}/${service.subgroup}">← ${escapeHtml(categoryLabel(service.category))}</a>
             <span class="detail-badge">${escapeHtml(service.badge)}</span>
             <p class="eyebrow">${escapeHtml(service.duration)}</p>
             <h1>${escapeHtml(service.title)}</h1>
@@ -518,6 +546,7 @@ function renderReviews() {
           <div class="reveal"><p class="eyebrow">Отзывы клиентов</p><h1>После нас<br><em>остаются эмоции</em></h1><p class="hero-lead">Собрали живые впечатления из Telegram-канала агентства. Без имён и личных контактов.</p></div>
           <div class="reviews-hero__visual reveal" style="--delay:100ms">
             ${mediaStage("./public/media/hero-lol.jpg", "Эмоции детей на празднике", "reviews-hero__media", "")}
+            ${mediaCallouts(["живые эмоции", "реальные праздники", "отзывы из Telegram"])}
             <div class="reviews-score"><strong>5.0</strong><span>★★★★★</span><p>по опубликованным отзывам</p></div>
           </div>
         </div>
@@ -529,6 +558,7 @@ function renderReviews() {
         <div class="container proof-grid">
           <div class="proof-visual reveal">
             ${mediaStage("./public/media/bear-family.jpg", "Семейное поздравление с большим медведем", "proof-media")}
+            ${mediaCallouts(["семейный сюрприз", "фото на память"])}
           </div>
           <div class="reveal" style="--delay:100ms"><p class="eyebrow">Почему нас рекомендуют</p><h2>Слышим идею.<br>Берём праздник на себя.</h2><ul class="proof-list"><li>всегда остаёмся на связи до события;</li><li>подстраиваем программу под возраст и гостей;</li><li>привозим костюмы, реквизит и музыкальное сопровождение;</li><li>помогаем сохранить сюрприз до самого выхода героя.</li></ul></div>
         </div>
