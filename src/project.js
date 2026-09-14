@@ -9,10 +9,11 @@ export const project = {
 };
 
 const media = (path) => `./public/media/catalog/${path}`;
+const cover = (name) => media(`new-covers/${name}.jpg`);
 
 export const categories = [
-  { id: "animators", navTitle: "Герои", title: "Аниматоры и герои", eyebrow: "22 героя", description: "Каждый персонаж — отдельная карточка с фотографиями из реальных праздников.", image: media("animator-cards/photo-394.jpg") },
-  { id: "express", navTitle: "Экспресс", title: "Экспресс-поздравления", eyebrow: "10–15 минут", description: "Два самостоятельных направления: гигантские костюмы и звёздные образы.", image: media("inflatables/white-bear/photo-056.jpg") },
+  { id: "animators", navTitle: "Герои", title: "Аниматоры и герои", eyebrow: "20 героев", description: "Каждый персонаж — отдельная карточка с фотографиями из реальных праздников.", image: cover("spider-man") },
+  { id: "express", navTitle: "Экспресс", title: "Экспресс-поздравления", eyebrow: "10–15 минут", description: "Два самостоятельных направления: гигантские костюмы и звёздные образы.", image: cover("white-bear-snezhok") },
   { id: "shows", navTitle: "Шоу", title: "Шоу-программы", eyebrow: "9 форматов", description: "Пена, неон, крио, пузыри, серебро, поролон, шары, вода и краски Холи.", image: media("shows/neon/photo-559.jpg") },
   { id: "graduations", navTitle: "Выпускные", title: "Выпускные", eyebrow: "4 · 9 · 11 классы", description: "Отдельные программы после 4, 9 и 11 класса и готовые большие пакеты.", image: media("graduations/photo-500.jpg") },
   { id: "services", navTitle: "Услуги", title: "Услуги на мероприятии", eyebrow: "Привезём оборудование", description: "Аквагрим, сладкая вата и попкорн со всем необходимым для работы на площадке.", image: media("services/aqua-face-painting/photo-380.jpg") },
@@ -21,12 +22,12 @@ export const categories = [
 
 export const catalogGroups = {
   animators: [
-    { id: "cartoons", title: "Мультгерои", description: "Любимые персонажи мультфильмов и игр для активной программы.", image: media("animator-cards/photo-147.jpg") },
-    { id: "superheroes", title: "Супергерои", description: "Сильные герои, испытания и командные приключения.", image: media("animator-cards/photo-394.jpg") },
-    { id: "fairytale", title: "Сказочные герои", description: "Волшебные образы, пираты и яркие ведущие для сюжетного праздника.", image: media("animator-cards/photo-547.jpg") },
+    { id: "cartoons", title: "Мультгерои", description: "Любимые персонажи мультфильмов и игр для активной программы.", image: cover("three-cats") },
+    { id: "superheroes", title: "Супергерои", description: "Сильные герои, испытания и командные приключения.", image: cover("spider-man") },
+    { id: "fairytale", title: "Сказочные персонажи", description: "Волшебные образы для яркого сюжетного праздника.", image: cover("elsa") },
   ],
   express: [
-    { id: "inflatables", title: "Гигантские костюмы", description: "Надувные и ростовые герои для эффектного короткого выхода.", image: media("inflatables/white-bear/photo-056.jpg") },
+    { id: "inflatables", title: "Гигантские костюмы", description: "Надувные и ростовые герои для эффектного короткого выхода.", image: cover("white-bear-snezhok") },
     { id: "stars", title: "Звёзды", description: "Музыкальные пародийные образы с личным поздравлением.", image: media("stars/arthur/cover.png") },
   ],
   graduations: [
@@ -94,27 +95,26 @@ export const services = [
   star("vlad-a4", "Влад А4", media("stars/vlad-a4/photo-052.jpg")),
   star("instasamka", "Инстасамка", "./public/media/stars.jpg", [], null, { badge: "Образ по запросу", short: "Яркое экспресс-поздравление в образе Инстасамки. Актуальное фото костюма подтвердим перед заказом." }),
 
-  inflatable("white-bear", "Белый мишка-гигант «Снежок»", media("inflatables/white-bear/photo-056.jpg"), [media("inflatables/white-bear/photo-067.jpg"), media("inflatables/white-bear/photo-111.jpg"), media("inflatables/white-bear/photo-354.jpg"), media("inflatables/white-bear/photo-356.jpg")], media("inflatables/white-bear/performance.m4v"), { badge: "До 3 метров" }),
-  inflatable("barney", "Мишка Барни", media("inflatables/brown-bear/photo-564.jpg"), [], media("inflatables/brown-bear/performance.m4v")),
-  inflatable("shiny-bear", "Блестящий мишка", media("inflatables/shiny-bear/photo-047.jpg"), [media("inflatables/shiny-bear/photo-193.jpg")], media("inflatables/shiny-bear/performance.m4v")),
-  inflatable("gorilla", "Горилла / Кинг-Конг", media("inflatables/gorilla/photo-551.jpg"), [], media("inflatables/gorilla/performance.m4v")),
-  inflatable("labubu-express", "Лабубу", media("inflatables/labubu/photo-337.jpg"), [media("inflatables/labubu/photo-468.jpg")], media("inflatables/labubu/performance.m4v")),
-  inflatable("pink-bunny", "Розовый зайка", media("inflatables/pink-bunny/photo-159.jpg"), [media("inflatables/pink-bunny/photo-175.jpg"), media("inflatables/pink-bunny/photo-177.jpg"), media("inflatables/pink-bunny/photo-513.jpg")], media("inflatables/pink-bunny/performance.m4v")),
-  inflatable("cheburashka-express", "Чебурашка", media("inflatables/cheburashka/photo-016.jpg"), [media("inflatables/cheburashka/photo-021.jpg"), media("inflatables/cheburashka/photo-459.jpg")], media("inflatables/cheburashka/performance.m4v")),
-  animator("rosa-barboskina", "Роза Барбоскина", media("animator-cards/photo-147.jpg")),
-  animator("marshal", "Маршал", media("animator-cards/photo-148.jpg")), animator("gonshik", "Гонщик", media("inflatables/gonshik/photo-153.jpg")),
-  animator("three-cats", "Три Кота", media("animator-cards/photo-509.jpg")), animator("rozochka", "Розочка", media("animator-cards/photo-161.jpg")),
-  animator("sparkle-pony", "Искорка", media("animator-cards/photo-135.jpg"), "fairytale"), animator("tuchka", "Тучка", media("animator-cards/photo-146.jpg")),
-  animator("kesha", "Кеша", media("animator-cards/photo-162.jpg")), animator("peppa", "Свинка Пеппа", media("animator-cards/photo-137.jpg")),
-  animator("luntik", "Лунтик", media("animator-cards/photo-149.jpg")), animator("mcqueen", "Молния МакКуин", media("animator-cards/photo-510.jpg")),
-  animator("lady-bug", "Леди Баг", media("animator-cards/photo-154.jpg"), "superheroes"), animator("spider-man", "Человек-паук", media("animator-cards/photo-394.jpg"), "superheroes"),
-  animator("black-panther", "Чёрная Пантера", media("animator-cards/photo-167.jpg"), "superheroes"), animator("optimus-prime", "Оптимус Прайм", media("animator-cards/photo-155.jpg"), "superheroes"),
-  animator("bumblebee", "Бамблби", media("animator-cards/photo-136.jpg"), "superheroes"), animator("minion", "Миньон", media("animator-cards/photo-152.jpg")),
-  animator("elsa", "Эльза", media("animator-cards/photo-547.jpg"), "fairytale"), animator("lol-pranksta", "Кукла LOL", media("inflatables/lol/photo-276.jpg"), "cartoons", {
-    gallery: [media("inflatables/lol/photo-276.jpg"), media("inflatables/lol/photo-124.jpg"), media("inflatables/lol/photo-479.jpg")],
+  inflatable("white-bear", "Белый мишка-гигант «Снежок»", cover("white-bear-snezhok"), [media("inflatables/white-bear/photo-056.jpg"), media("inflatables/white-bear/photo-067.jpg"), media("inflatables/white-bear/photo-111.jpg"), media("inflatables/white-bear/photo-354.jpg"), media("inflatables/white-bear/photo-356.jpg")], media("inflatables/white-bear/performance.m4v"), { badge: "До 3 метров" }),
+  inflatable("barney", "Мишка Барни", cover("barney"), [media("inflatables/brown-bear/photo-564.jpg")], media("inflatables/brown-bear/performance.m4v")),
+  inflatable("shiny-bear", "Блестящий мишка", cover("shiny-bear"), [media("inflatables/shiny-bear/photo-047.jpg"), media("inflatables/shiny-bear/photo-193.jpg")], media("inflatables/shiny-bear/performance.m4v")),
+  inflatable("gorilla", "Горилла / Кинг-Конг", cover("gorilla"), [media("inflatables/gorilla/photo-551.jpg")], media("inflatables/gorilla/performance.m4v")),
+  inflatable("labubu-express", "Лабубу", cover("labubu"), [media("inflatables/labubu/photo-337.jpg"), media("inflatables/labubu/photo-468.jpg")], media("inflatables/labubu/performance.m4v")),
+  inflatable("pink-bunny", "Розовый зайка", cover("pink-bunny"), [media("inflatables/pink-bunny/photo-159.jpg"), media("inflatables/pink-bunny/photo-175.jpg"), media("inflatables/pink-bunny/photo-177.jpg"), media("inflatables/pink-bunny/photo-513.jpg")], media("inflatables/pink-bunny/performance.m4v")),
+  inflatable("cheburashka-express", "Чебурашка", cover("cheburashka"), [media("inflatables/cheburashka/photo-016.jpg"), media("inflatables/cheburashka/photo-021.jpg"), media("inflatables/cheburashka/photo-459.jpg")], media("inflatables/cheburashka/performance.m4v")),
+  animator("rosa-barboskina", "Роза Барбоскина", cover("rosa-barboskina"), "cartoons", { gallery: [cover("rosa-barboskina"), media("animator-cards/photo-147.jpg")] }),
+  animator("marshal", "Маршал", cover("marshal"), "cartoons", { gallery: [cover("marshal"), media("animator-cards/photo-148.jpg")] }), animator("gonshik", "Гонщик", cover("gonshik"), "cartoons", { gallery: [cover("gonshik"), media("inflatables/gonshik/photo-153.jpg")] }),
+  animator("three-cats", "Три Кота", cover("three-cats"), "cartoons", { gallery: [cover("three-cats"), media("animator-cards/photo-509.jpg")] }), animator("rozochka", "Розочка", cover("rozochka"), "cartoons", { gallery: [cover("rozochka"), media("animator-cards/photo-161.jpg")] }),
+  animator("sparkle-pony", "Единорожка", cover("unicorn"), "fairytale", { gallery: [cover("unicorn"), media("animator-cards/photo-135.jpg")] }), animator("tuchka", "Тучка", cover("tuchka"), "cartoons", { gallery: [cover("tuchka"), media("animator-cards/photo-146.jpg")] }),
+  animator("kesha", "Кеша", cover("kesha"), "cartoons", { gallery: [cover("kesha"), media("animator-cards/photo-162.jpg")] }), animator("peppa", "Свинка Пеппа", cover("peppa"), "cartoons", { gallery: [cover("peppa"), media("animator-cards/photo-137.jpg")] }),
+  animator("luntik", "Лунтик", cover("luntik"), "cartoons", { gallery: [cover("luntik"), media("animator-cards/photo-149.jpg")] }), animator("mcqueen", "Молния МакКуин", cover("lightning-mcqueen"), "cartoons", { gallery: [cover("lightning-mcqueen"), media("animator-cards/photo-510.jpg")] }),
+  animator("lady-bug", "Леди Баг", cover("lady-bug"), "superheroes", { gallery: [cover("lady-bug"), media("animator-cards/photo-154.jpg")] }), animator("spider-man", "Человек-паук", cover("spider-man"), "superheroes", { gallery: [cover("spider-man"), media("animator-cards/photo-394.jpg")] }),
+  animator("black-panther", "Чёрная Пантера", media("animator-cards/photo-167.jpg"), "superheroes"), animator("optimus-prime", "Оптимус Прайм", cover("optimus-prime"), "superheroes", { gallery: [cover("optimus-prime"), media("animator-cards/photo-155.jpg")] }),
+  animator("bumblebee", "Бамблби", cover("bumblebee"), "superheroes", { gallery: [cover("bumblebee"), media("animator-cards/photo-136.jpg")] }), animator("minion", "Миньон", cover("minion"), "cartoons", { gallery: [cover("minion"), media("animator-cards/photo-152.jpg")] }),
+  animator("elsa", "Эльза", cover("elsa"), "fairytale", { gallery: [cover("elsa"), media("animator-cards/photo-547.jpg")] }), animator("lol-pranksta", "Кукла LOL", cover("lol"), "cartoons", {
+    gallery: [cover("lol"), media("inflatables/lol/photo-276.jpg"), media("inflatables/lol/photo-124.jpg"), media("inflatables/lol/photo-479.jpg")],
   }),
-  animator("simka-nolik", "Симка и Нолик", media("animator-cards/shared-catalog-163.jpg")),
-  animator("pirates", "Пираты", media("animator-cards/shared-catalog-163.jpg"), "fairytale"), animator("clown-lelya", "Клоуниха Лёля", media("animator-cards/shared-catalog-163.jpg"), "fairytale"),
+  animator("simka-nolik", "Симка и Нолик", cover("simka-nolik"), "cartoons", { gallery: [cover("simka-nolik"), media("animator-cards/shared-catalog-163.jpg")] }),
 
   show("foam-party", "Пенная вечеринка", media("shows/foam/cover-offer.jpg"), "Море пены, музыка и активные игры на открытой площадке.", {
     subgroup: "outdoor", gallery: [media("shows/foam/cover-offer.jpg"), media("shows/foam/photo-486.jpg")], badge: "Летний хит", includes: ["пенная установка", "ведущий", "музыка", "игры в пене"],

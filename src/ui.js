@@ -38,7 +38,7 @@ export function setNotice(message, type = "success") {
   }, 4500);
 }
 
-export function renderShell({ title, nav, content, cartCount = 0 }) {
+export function renderShell({ title, nav, content, cartCount = 0, backHref = "", backLabel = "Назад" }) {
   document.title = title;
   const root = qs("#app");
   root.innerHTML = `
@@ -57,6 +57,15 @@ export function renderShell({ title, nav, content, cartCount = 0 }) {
         </a>
       </div>
     </header>
+    ${backHref ? `
+      <div class="page-back-bar">
+        <div class="container">
+          <a class="page-back-button" href="${escapeHtml(backHref)}" aria-label="${escapeHtml(backLabel)}">
+            <span aria-hidden="true">←</span><b>${escapeHtml(backLabel)}</b>
+          </a>
+        </div>
+      </div>
+    ` : ""}
     <main id="main">${content}</main>
     <div id="global-notice" class="notice" hidden role="status" aria-live="polite"></div>
     <footer class="site-footer-wrap">

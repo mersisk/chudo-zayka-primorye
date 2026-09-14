@@ -115,8 +115,11 @@ p { margin-top: 0; }
 .text-link { align-self: end; display: inline-flex; gap: 12px; align-items: center; font-weight: 900; text-decoration: none; }
 .text-link span { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--pink); color: white; transition: transform .3s ease; }
 .text-link:hover span { transform: rotate(45deg); }
-.back-link { display: inline-block; margin-bottom: 32px; color: currentColor; opacity: .7; font-weight: 800; text-decoration: none; }
-.back-link:hover { opacity: 1; }
+.page-back-bar { position: relative; z-index: 12; padding: 14px 0; background: var(--ink); color: white; }
+.page-back-button { width: max-content; min-height: 44px; padding: 8px 15px 8px 9px; border: 1px solid var(--line); border-radius: 999px; display: inline-flex; align-items: center; gap: 10px; background: rgba(255,255,255,.06); color: white; text-decoration: none; font-size: 14px; transition: transform .25s ease, border-color .25s ease, background .25s ease; }
+.page-back-button span { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--pink); font-size: 18px; line-height: 1; }
+.page-back-button b { font-weight: 850; }
+.page-back-button:hover { border-color: var(--pink); background: rgba(255,255,255,.1); transform: translateX(-3px); }
 
 .hero-section { position: relative; overflow: hidden; min-height: calc(100vh - 78px); padding: clamp(65px, 8vw, 112px) 0 0; background: radial-gradient(circle at 16% 15%, #221347 0, transparent 32%), var(--ink); color: var(--text); }
 .hero-layout { position: relative; z-index: 2; display: grid; grid-template-columns: 1.02fr .98fr; gap: clamp(36px, 6vw, 90px); align-items: center; }
@@ -261,7 +264,6 @@ p { margin-top: 0; }
 .catalog-group-card h3 { color: var(--text-dark); }
 .catalog-group-card__body p { color: var(--muted-dark); }
 .catalog-group-card__body .text-link { color: var(--pink); }
-.back-link--catalog { margin: -50px 0 42px; }
 .catalog-services-heading { margin-top: 30px; }
 
 .detail-hero { padding: clamp(60px, 8vw, 110px) 0; }
@@ -437,6 +439,8 @@ select option { color: var(--text-dark); }
 @media (max-width: 720px) {
   .container { width: min(100% - 28px, 1180px); }
   .site-header { width: min(100% - 22px, 1240px); min-height: 66px; gap: 10px; }
+  .page-back-bar { padding: 10px 0; }
+  .page-back-button { min-height: 42px; padding: 7px 13px 7px 7px; }
   .brand img { width: 42px; height: 42px; }
   .brand small { display: none; }
   .cart-link { padding: 7px; }

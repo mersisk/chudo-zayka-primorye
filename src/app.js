@@ -410,18 +410,19 @@ function renderCatalog(categoryId, subgroupId = "") {
     title: `${heroTitle} — ${project.name}`,
     nav: nav(category.id),
     cartCount: readCart().length,
+    backHref: activeGroup ? `#/catalog/${category.id}` : "#/",
+    backLabel: activeGroup ? `Все разделы «${category.title}»` : "На главную",
     content: `
       <section class="catalog-hero">
         <div class="container catalog-hero__grid">
           <div class="reveal">
-            <a class="back-link" href="${activeGroup ? `#/catalog/${category.id}` : "#/"}">← ${activeGroup ? `Все разделы «${escapeHtml(category.title)}»` : "На главную"}</a>
             <p class="eyebrow">${escapeHtml(activeGroup ? `${filtered.length} вариантов` : category.eyebrow)}</p>
             <h1 class="${heroTitle.length > 18 ? "catalog-hero__title--long" : ""}">${escapeHtml(heroTitle)}</h1>
             <p class="hero-lead">${escapeHtml(heroDescription)}</p>
           </div>
           <div class="catalog-hero__art reveal" style="--delay:120ms">
             ${mediaStage(heroImage, heroTitle, "catalog-hero__media", "")}
-            ${mediaCallouts([activeGroup?.title || category.eyebrow, "реальное фото", `${activeGroup ? filtered.length : totalCount} вариантов`])}
+            ${mediaCallouts([activeGroup?.title || category.eyebrow, "обложка раздела", `${activeGroup ? filtered.length : totalCount} вариантов`])}
             <span class="catalog-hero__orbit" aria-hidden="true"></span>
           </div>
         </div>
@@ -495,18 +496,19 @@ function renderService(id) {
     title: `${service.title} — ${project.name}`,
     nav: nav(service.category),
     cartCount: readCart().length,
+    backHref: `#/catalog/${service.category}/${service.subgroup}`,
+    backLabel: `К разделу «${categoryLabel(service.category)}»`,
     content: `
       <section class="detail-hero">
         <div class="container detail-grid">
           <div class="detail-gallery detail-carousel reveal" data-carousel tabindex="0" aria-label="Галерея: ${escapeHtml(service.title)}">
             <div class="detail-gallery__main">${slides.map((slide, index) => renderSlide(slide, service, index)).join("")}
-              ${mediaCallouts([service.duration, "реальный праздник", "можно добавить в заявку"])}
+              ${mediaCallouts([service.duration, "фото и видео", "можно добавить в заявку"])}
               ${slides.length > 1 ? `<button class="carousel-arrow carousel-arrow--prev" type="button" data-carousel-prev aria-label="Предыдущий материал">←</button><button class="carousel-arrow carousel-arrow--next" type="button" data-carousel-next aria-label="Следующий материал">→</button><span class="carousel-counter" data-carousel-counter>1 / ${slides.length}</span>` : ""}
             </div>
             ${slides.length > 1 ? `<div class="detail-gallery__thumbs">${slides.map((slide, index) => `<button type="button" class="detail-gallery__thumb" data-slide-to="${index}" aria-label="Открыть ${slide.type === "video" ? "видео" : `фотографию ${index + 1}`}" aria-current="${index === 0}">${mediaStage(slide.type === "video" ? service.image : slide.src, "", "detail-gallery__thumb-media")} ${slide.type === "video" ? '<span class="thumb-play">▶</span>' : ""}</button>`).join("")}</div>` : ""}
           </div>
           <div class="detail-copy reveal" style="--delay:100ms">
-            <a class="back-link" href="#/catalog/${service.category}/${service.subgroup}">← ${escapeHtml(categoryLabel(service.category))}</a>
             <span class="detail-badge">${escapeHtml(service.badge)}</span>
             <p class="eyebrow">${escapeHtml(service.duration)}</p>
             <h1>${escapeHtml(service.title)}</h1>
@@ -540,6 +542,8 @@ function renderReviews() {
     title: `Отзывы — ${project.name}`,
     nav: nav("reviews"),
     cartCount: readCart().length,
+    backHref: "#/",
+    backLabel: "На главную",
     content: `
       <section class="reviews-hero">
         <div class="container reviews-hero__grid">
@@ -586,6 +590,8 @@ function renderCart() {
     title: `Заявка — ${project.name}`,
     nav: nav("cart"),
     cartCount: items.length,
+    backHref: "#/",
+    backLabel: "На главную",
     content: `
       <section class="cart-page">
         <div class="container">
@@ -678,6 +684,8 @@ function renderThanks() {
     title: `Заявка сохранена — ${project.name}`,
     nav: nav("cart"),
     cartCount: 0,
+    backHref: "#/",
+    backLabel: "На главную",
     content: `<section class="thanks-page"><div class="thanks-orbit" aria-hidden="true"></div><div class="container"><div class="thanks-card reveal"><span class="thanks-icon">${icons.check}</span><p class="eyebrow">Заявка сохранена</p><h1>Праздник<br>уже ближе</h1><p>В этой версии заявка хранится только на вашем устройстве. Когда подключим базу, она будет сразу попадать менеджеру.</p><div><a class="button button--primary" href="#/">На главную</a><a class="button button--glass" href="${project.phoneHref}">Позвонить сейчас</a></div></div></div></section>`,
   });
   bindMotion();
@@ -691,7 +699,7 @@ async function workspaceContent() {
 }
 
 async function renderWorkspace() {
-  renderShell({ title: `Заявки — ${project.name}`, nav: nav("workspace"), cartCount: readCart().length, content: '<section class="section"><div class="container"><p>Загружаем заявки…</p></div></section>' });
+  renderShell({ title: `Заявки — ${project.name}`, nav: nav("workspace"), cartCount: readCart().length, backHref: "#/", backLabel: "На главную", content: '<section class="section"><div class="container"><p>Загружаем заявки…</p></div></section>' });
   qs("#main").innerHTML = await workspaceContent();
 
   const loginForm = qs("#login-form");
@@ -726,7 +734,7 @@ async function renderWorkspace() {
 }
 
 function renderNotFound() {
-  renderShell({ title: `Страница не найдена — ${project.name}`, nav: nav(""), cartCount: readCart().length, content: `<section class="empty-cart"><h1>Здесь ничего нет</h1><p>Вернитесь в каталог и выберите программу.</p><a class="button button--primary" href="#/">На главную</a></section>` });
+  renderShell({ title: `Страница не найдена — ${project.name}`, nav: nav(""), cartCount: readCart().length, backHref: "#/", backLabel: "На главную", content: `<section class="empty-cart"><h1>Здесь ничего нет</h1><p>Вернитесь в каталог и выберите программу.</p><a class="button button--primary" href="#/">На главную</a></section>` });
 }
 
 async function render() {
