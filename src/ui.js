@@ -68,6 +68,18 @@ export function renderShell({ title, nav, content, cartCount = 0, backHref = "",
     ` : ""}
     <main id="main">${content}</main>
     <div id="global-notice" class="notice" hidden role="status" aria-live="polite"></div>
+    <dialog id="partner-modal" class="partner-modal" aria-labelledby="partner-modal-title">
+      <div class="partner-modal__card">
+        <button class="partner-modal__close" type="button" data-partner-modal-close aria-label="Закрыть">×</button>
+        <p class="eyebrow">Партнёрский сайт</p>
+        <h2 id="partner-modal-title" data-partner-modal-title>Перейти на сайт?</h2>
+        <p data-partner-modal-text>Для этого направления откроется сайт партнёра.</p>
+        <div class="partner-modal__actions">
+          <a class="button button--primary" data-partner-modal-go target="_blank" rel="noreferrer">Перейти ↗</a>
+          <button class="button button--glass" type="button" data-partner-modal-close>Остаться на сайте</button>
+        </div>
+      </div>
+    </dialog>
     <footer class="site-footer-wrap">
       <div class="site-footer">
         <a class="brand brand--footer" href="#/">

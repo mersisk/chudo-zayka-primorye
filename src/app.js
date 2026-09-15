@@ -198,6 +198,26 @@ function bindCommon() {
       }
     });
   }
+  for (const link of qsa("[data-partner-url]")) {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      const modal = qs("#partner-modal");
+      const title = link.dataset.partnerTitle || "Партнёрский сайт";
+      const name = link.dataset.partnerName || link.dataset.partnerUrl;
+      qs("[data-partner-modal-title]", modal).textContent = title;
+      qs("[data-partner-modal-text]", modal).textContent = `Для этого направления откроется сайт партнёра ${name}.`;
+      const go = qs("[data-partner-modal-go]", modal);
+      go.href = link.dataset.partnerUrl;
+      go.textContent = `Перейти на ${name} ↗`;
+      modal.showModal();
+    });
+  }
+  const partnerModal = qs("#partner-modal");
+  for (const button of qsa("[data-partner-modal-close]", partnerModal)) button.addEventListener("click", () => partnerModal.close());
+  qs("[data-partner-modal-go]", partnerModal)?.addEventListener("click", () => partnerModal.close());
+  partnerModal?.addEventListener("click", (event) => {
+    if (event.target === partnerModal) partnerModal.close();
+  });
   updateCartBadges();
   bindMotion();
 }
@@ -378,7 +398,7 @@ function renderCatalogGroups(categoryId) {
         ${groups.map((group, index) => {
           const count = services.filter((item) => item.category === categoryId && item.subgroup === group.id).length;
           return `
-          <a class="catalog-group-card reveal" style="--delay:${index * 70}ms" href="#/catalog/${categoryId}/${group.id}">
+          <a class="catalog-group-card reveal" style="--delay:${index * 70}ms" href="${escapeHtml(group.partnerUrl || `#/catalog/${categoryId}/${group.id}`)}" ${group.partnerUrl ? `data-partner-url="${escapeHtml(group.partnerUrl)}" data-partner-title="${escapeHtml(group.title)}" data-partner-name="${escapeHtml(group.partnerName || group.partnerUrl)}"` : ""}>
             <div class="catalog-group-card__visual">
               ${mediaStage(group.image, group.title, "catalog-group-card__media")}
               ${mediaCallouts([`${count} ${count === 1 ? "вариант" : "вариантов"}`], "media-callouts--compact")}
@@ -520,7 +540,7 @@ function renderService(id) {
             <div class="detail-actions">
               <button class="button button--primary add-to-cart" type="button" data-service-id="${escapeHtml(service.id)}">Добавить в заявку <span>${icons.plus}</span></button>
               <a class="button button--glass" href="${project.phoneHref}">Позвонить</a>
-              ${service.externalUrl ? `<a class="button button--glass" href="${escapeHtml(service.externalUrl)}" target="_blank" rel="noreferrer">${escapeHtml(service.externalLabel || "Открыть сайт партнёра ↗")}</a>` : ""}
+              ${service.externalUrl ? `<a class="button button--glass" href="${escapeHtml(service.externalUrl)}" data-partner-url="${escapeHtml(service.externalUrl)}" data-partner-title="${escapeHtml(service.title)}" data-partner-name="${escapeHtml(new URL(service.externalUrl).hostname)}">${escapeHtml(service.externalLabel || "Открыть сайт партнёра ↗")}</a>` : ""}
             </div>
             <p class="detail-note">Точную стоимость подтвердим после проверки даты, места и состава программы.</p>
           </div>
