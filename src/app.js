@@ -143,6 +143,26 @@ function reviewCard(review, index) {
   `;
 }
 
+function bindReviewCarousel() {
+  const carousel = qs("[data-review-carousel]");
+  if (!carousel) return;
+  const pages = qsa("[data-review-page]", carousel);
+  const counter = qs("[data-review-counter]", carousel);
+  let current = 0;
+  const show = (next) => {
+    current = (next + pages.length) % pages.length;
+    pages.forEach((page, index) => { page.hidden = index !== current; });
+    if (counter) counter.textContent = `${current + 1} / ${pages.length}`;
+  };
+  qs("[data-reviews-prev]", carousel)?.addEventListener("click", () => show(current - 1));
+  qs("[data-reviews-next]", carousel)?.addEventListener("click", () => show(current + 1));
+  carousel.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft") show(current - 1);
+    if (event.key === "ArrowRight") show(current + 1);
+  });
+  show(0);
+}
+
 function bindMotion() {
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (reduceMotion) {
@@ -559,6 +579,7 @@ function renderService(id) {
 }
 
 function renderReviews() {
+  const pages = Array.from({ length: Math.ceil(reviews.length / 2) }, (_, index) => reviews.slice(index * 2, index * 2 + 2));
   renderShell({
     title: `Отзывы — ${project.name}`,
     nav: nav("reviews"),
@@ -577,7 +598,13 @@ function renderReviews() {
         </div>
       </section>
       <section class="section reviews-page">
-        <div class="container review-grid review-grid--page">${reviews.map(reviewCard).join("")}</div>
+        <div class="container">
+          <div class="section-heading reveal"><div><p class="eyebrow">Отзывы клиентов</p><h2>Листайте<br>впечатления</h2></div><p>На экране — две истории. Переключайте их стрелками.</p></div>
+          <div class="review-carousel reveal" data-review-carousel tabindex="0" aria-label="Отзывы клиентов">
+            ${pages.map((page, pageIndex) => `<div class="review-grid review-grid--page" data-review-page ${pageIndex ? "hidden" : ""}>${page.map((review, index) => reviewCard(review, pageIndex * 2 + index)).join("")}</div>`).join("")}
+            ${pages.length > 1 ? `<div class="review-carousel__controls"><button type="button" class="carousel-arrow" data-reviews-prev aria-label="Предыдущие отзывы">←</button><span data-review-counter>1 / ${pages.length}</span><button type="button" class="carousel-arrow" data-reviews-next aria-label="Следующие отзывы">→</button></div>` : ""}
+          </div>
+        </div>
       </section>
       <section class="section proof-section">
         <div class="container proof-grid">
@@ -592,6 +619,7 @@ function renderReviews() {
     `,
   });
   bindCommon();
+  bindReviewCarousel();
 }
 
 function cartSummary(items) {
@@ -633,7 +661,7 @@ function renderCart() {
                   <label>Возраст ребёнка<input name="childAge" inputmode="numeric" maxlength="30" placeholder="Если праздник детский"></label>
                   <label class="form-grid__wide">Комментарий<textarea name="comment" maxlength="1000" placeholder="Место, количество гостей, пожелания"></textarea></label>
                 </div>
-                <label class="consent"><input name="consent" type="checkbox" required><span>Согласен на использование этих данных для связи по заявке.</span></label>
+                <label class="consent"><input name="consent" type="checkbox" required><span>Я принимаю <a href="#/agreement" target="_blank" rel="noreferrer">пользовательское соглашение</a> и даю согласие на обработку персональных данных по <a href="#/privacy" target="_blank" rel="noreferrer">политике конфиденциальности</a> для обработки заявки и связи со мной.</span></label>
                 <p id="form-error" class="field-error" hidden></p>
                 <button class="button button--primary button--wide" type="submit">Отправить заявку <span>${icons.arrow}</span></button>
                 <p class="form-note">Пока данные сохраняются только в браузере этого устройства.</p>
@@ -676,7 +704,7 @@ function renderCart() {
     const digits = payload.phone.replace(/\D/g, "");
 
     if (payload.name.length < 2 || digits.length < 10 || !payload.eventDate || !data.get("consent")) {
-      error.textContent = "Заполните имя, телефон, дату и отметьте согласие на связь.";
+      error.textContent = "Заполните имя, телефон, дату и подтвердите согласие на обработку данных.";
       error.hidden = false;
       return;
     }
@@ -710,6 +738,32 @@ function renderThanks() {
     content: `<section class="thanks-page"><div class="thanks-orbit" aria-hidden="true"></div><div class="container"><div class="thanks-card reveal"><span class="thanks-icon">${icons.check}</span><p class="eyebrow">Заявка сохранена</p><h1>Праздник<br>уже ближе</h1><p>В этой версии заявка хранится только на вашем устройстве. Когда подключим базу, она будет сразу попадать менеджеру.</p><div><a class="button button--primary" href="#/">На главную</a><a class="button button--glass" href="${project.phoneHref}">Позвонить сейчас</a></div></div></div></section>`,
   });
   bindMotion();
+}
+
+function renderLegal(kind) {
+  const privacy = kind === "privacy";
+  const title = privacy ? "Политика конфиденциальности" : "Пользовательское соглашение";
+  const sections = privacy ? [
+    ["Кто обрабатывает данные", `Аниматорское агентство «${project.name}». По вопросам обработки данных: ${project.phone} или Telegram.`],
+    ["Какие данные нужны", "Имя, телефон, дата события, город или район, возраст ребёнка при необходимости, комментарий и выбранные услуги."],
+    ["Зачем они нужны", "Чтобы обработать заявку, связаться с вами, уточнить детали праздника и подготовить предложение. Мы не собираем платёжные данные и не продаём персональные данные."],
+    ["Хранение и удаление", "Сейчас заявка сохраняется локально в браузере устройства. После подключения рабочей базы доступ к заявкам будет только у уполномоченных сотрудников. Вы можете отозвать согласие и запросить удаление данных через контакты выше."],
+    ["Передача третьим лицам", "Данные не передаются третьим лицам, кроме случаев, когда это требуется законом или вы отдельно попросили организовать услугу партнёра."],
+  ] : [
+    ["О сайте", `Сайт «${project.name}» помогает выбрать аниматоров, шоу, экспресс-поздравления и оставить заявку. Размещённые материалы носят информационный характер.`],
+    ["Заявка", "Отправка заявки не является оплатой или подтверждением бронирования. Дату, состав программы и итоговую стоимость менеджер подтверждает отдельно."],
+    ["Контакты", `Для связи используйте ${project.phone} или Telegram. Перед отправкой заявки пользователь подтверждает согласие с политикой конфиденциальности.`],
+    ["Права на материалы", "Фотографии, тексты, дизайн и другие материалы сайта нельзя использовать без согласия правообладателя, кроме случаев, разрешённых законом."],
+  ];
+  renderShell({
+    title: `${title} — ${project.name}`,
+    nav: nav(""),
+    cartCount: readCart().length,
+    backHref: "#/cart",
+    backLabel: "К заявке",
+    content: `<section class="legal-page"><div class="container legal-page__content"><p class="eyebrow">Обновлено 15 сентября 2026</p><h1>${title}</h1><p class="hero-lead">Этот документ применяется к заявкам, отправленным через сайт.</p>${sections.map(([heading, text]) => `<section><h2>${escapeHtml(heading)}</h2><p>${escapeHtml(text)}</p></section>`).join("")}</div></section>`,
+  });
+  bindCommon();
 }
 
 async function workspaceContent() {
@@ -764,6 +818,8 @@ async function render() {
   if (current === "/reviews") return renderReviews();
   if (current === "/cart") return renderCart();
   if (current === "/thanks") return renderThanks();
+  if (current === "/privacy") return renderLegal("privacy");
+  if (current === "/agreement") return renderLegal("agreement");
   if (current === "/workspace") return renderWorkspace();
   if (current.startsWith("/catalog/")) {
     const [, , categoryId, subgroupId = ""] = current.split("/");

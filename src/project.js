@@ -13,7 +13,7 @@ const cover = (name) => media(`new-covers/${name}.jpg`);
 
 export const categories = [
   { id: "animators", navTitle: "Герои", title: "Аниматоры и герои", eyebrow: "20 героев", description: "Каждый персонаж — отдельная карточка с фотографиями из реальных праздников.", image: cover("spider-man") },
-  { id: "express", navTitle: "Экспресс", title: "Экспресс-поздравления", eyebrow: "10–15 минут", description: "Два самостоятельных направления: гигантские костюмы и звёздные образы.", image: cover("white-bear-snezhok") },
+  { id: "express", navTitle: "Экспресс", title: "Экспресс-поздравления", eyebrow: "10–15 минут", description: "Два самостоятельных направления: гигантские костюмы и звёздные образы.", image: media("stars/group-cover.png") },
   { id: "shows", navTitle: "Шоу", title: "Шоу-программы", eyebrow: "9 форматов", description: "Пена, неон, крио, пузыри, серебро, поролон, шары, вода и краски Холи.", image: media("shows/neon/photo-559.jpg") },
   { id: "graduations", navTitle: "Выпускные", title: "Выпускные", eyebrow: "Детский сад · 4 · 9–11 классы", description: "Отдельные программы для детского сада, начальной и старшей школы. Точный состав согласуем с вашим классом.", image: media("graduations/kindergarten/cover.png") },
   { id: "services", navTitle: "Услуги", title: "Услуги на мероприятии", eyebrow: "Привезём оборудование", description: "Аквагрим, сладкая вата, попкорн и оформление площадки со всем необходимым для работы на мероприятии.", image: media("services/aqua-face-painting/photo-380.jpg") },
@@ -28,12 +28,12 @@ export const catalogGroups = {
   ],
   express: [
     { id: "inflatables", title: "Гигантские костюмы", description: "Надувные и ростовые герои для эффектного короткого выхода.", image: cover("white-bear-snezhok") },
-    { id: "stars", title: "Звёзды", description: "Музыкальные пародийные образы с личным поздравлением.", image: media("stars/arthur/cover.png") },
+    { id: "stars", title: "Звёзды", description: "Музыкальные пародийные образы с личным поздравлением.", image: media("stars/group-cover.png") },
   ],
   graduations: [
     { id: "kindergarten", title: "После детского сада", description: "Добрый и яркий праздник прощания с детским садом.", image: media("graduations/kindergarten/cover.png") },
     { id: "grade-4", title: "После 4 класса", description: "Первый большой школьный выпускной с программой под ваш класс.", image: media("graduations/photo-496.jpg") },
-    { id: "grade-9-11", title: "После 9 и 11 класса", description: "Программа и оформление согласуются отдельно под площадку, возраст и стиль выпускного.", image: media("graduations/photo-500.jpg"), partnerUrl: "https://olegkoshovenko.ru/", partnerName: "olegkoshovenko.ru" },
+    { id: "grade-9-11", title: "После 9 и 11 класса", description: "Программа и оформление согласуются отдельно под площадку, возраст и стиль выпускного.", image: media("graduations/grade-9-11/cover.png"), partnerUrl: "https://olegkoshovenko.ru/", partnerName: "olegkoshovenko.ru" },
   ],
   shows: [
     { id: "outdoor", title: "Праздник на улице", description: "Пена, вода и краски Холи для тёплого сезона.", image: media("shows/foam/cover-offer.jpg") },
@@ -130,7 +130,7 @@ export const services = [
 
   service({ id: "graduation-kindergarten", category: "graduations", subgroup: "kindergarten", title: "Выпускной после детского сада", badge: "Детский сад", duration: "от 60 минут", image: media("graduations/kindergarten/cover.png"), gallery: [media("graduations/kindergarten/cover.png")], short: "Яркое прощание с детским садом с любимыми героями, музыкой и общим финалом.", description: "Сценарий выпускного подбираем под группу, площадку и любимых детей героев. Подробности программы согласуем вместе перед праздником.", includes: ["ведущие и герои", "музыка", "игры для группы", "праздничный финал"] }),
   service({ id: "graduation-grade-4", category: "graduations", subgroup: "grade-4", title: "Выпускной после 4 класса", badge: "Начальная школа", duration: "от 60 минут", image: media("graduations/photo-496.jpg"), gallery: [media("graduations/photo-496.jpg"), media("graduations/photo-249.jpg")], video: media("graduations/performance.m4v"), short: "Игры, музыка и общий яркий финал для первого школьного выпускного.", description: "Программа для класса после 4 класса с ведущими, диджеем и интерактивами. Подробности состава согласуем под ваш класс и площадку.", includes: ["два ведущих", "диджей и звук", "игры для класса", "праздничный финал"] }),
-  service({ id: "graduation-grade-9-11", category: "graduations", subgroup: "grade-9-11", title: "Выпускной после 9 и 11 класса", badge: "Старшая школа", duration: "по согласованию", image: media("graduations/photo-500.jpg"), gallery: [media("graduations/photo-500.jpg")], short: "Соберём современный выпускной и оформление под ваш класс, площадку и бюджет.", description: "Подробный сценарий, ведущих, шоу и оформление согласуем индивидуально после обсуждения программы.", includes: ["индивидуальный сценарий", "ведущие и диджей", "шоу на выбор", "оформление площадки"], externalUrl: "https://olegkoshovenko.ru/", externalLabel: "Перейти на olegkoshovenko.ru ↗" }),
+  service({ id: "graduation-grade-9-11", category: "graduations", subgroup: "grade-9-11", title: "Выпускной после 9 и 11 класса", badge: "Старшая школа", duration: "по согласованию", image: media("graduations/grade-9-11/cover.png"), gallery: [media("graduations/grade-9-11/cover.png")], short: "Соберём современный выпускной и оформление под ваш класс, площадку и бюджет.", description: "Подробный сценарий, ведущих, шоу и оформление согласуем индивидуально после обсуждения программы.", includes: ["индивидуальный сценарий", "ведущие и диджей", "шоу на выбор", "оформление площадки"], externalUrl: "https://olegkoshovenko.ru/", externalLabel: "Перейти на olegkoshovenko.ru ↗" }),
 
   service({ id: "face-painting", category: "services", subgroup: "stations", title: "Аквагрим", badge: "Выездная станция", duration: "по времени мероприятия", image: media("services/aqua-face-painting/photo-380.jpg"), gallery: [media("services/aqua-face-painting/photo-380.jpg"), media("services/aqua-face-painting/photo-528.jpg")], short: "Яркие рисунки на лице безопасными профессиональными красками.", description: "Приезжаем на площадку со столом, материалами и всем необходимым для работы мастера.", includes: ["мастер", "профессиональные краски", "оборудование", "уборка рабочего места"] }),
   service({ id: "cotton-candy", category: "services", subgroup: "stations", title: "Сладкая вата", badge: "Выездная станция", duration: "по времени мероприятия", image: media("services/cotton-candy/photo-524.jpg"), gallery: [media("services/cotton-candy/photo-524.jpg")], video: media("services/shared/service-stations.m4v"), short: "Готовим сладкую вату прямо на мероприятии.", description: "Привозим аппарат, расходные материалы и оператора. Заранее согласуем количество гостей и доступ к электричеству.", includes: ["аппарат", "оператор", "расходные материалы", "подача гостям"] }),
@@ -148,6 +148,7 @@ export const reviews = [
   { text: "Дети с удовольствием участвовали в конкурсах и танцевали. Всем всё очень понравилось.", context: "Праздник с аниматорами", source: "Отзыв из Telegram-канала" },
   { text: "Спасибо огромное, вы — чудо. Мама очень счастлива и ещё долго будет вспоминать этот сюрприз.", context: "Поздравление с большим медведем", source: "Отзыв из Telegram-канала" },
   { text: "Всегда на связи, слышат и поддерживают любые идеи, создают атмосферу праздника за секунды.", context: "Сюрприз для подруги", source: "Видеоотзыв клиента" },
+  { text: "Олег, спасибо огромное за праздник! В восторге оказалась не только именинница, но и все дети, родители и персонал детского сада. Очень надеемся на дальнейшее сотрудничество. А Чебурашке — отдельный привет и спасибо за улыбки детей!", context: "Праздник в детском саду", source: "Отзыв клиента" },
 ];
 
 export const steps = [

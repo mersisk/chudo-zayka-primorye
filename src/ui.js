@@ -94,6 +94,8 @@ export function renderShell({ title, nav, content, cartCount = 0, backHref = "",
           <a href="#/catalog/services">Услуги на мероприятии</a>
           <a href="#/catalog/programs">Пакеты и предложения</a>
           <a href="#/reviews">Отзывы</a>
+          <a href="#/agreement">Пользовательское соглашение</a>
+          <a href="#/privacy">Политика конфиденциальности</a>
         </div>
         <div class="footer-contact">
           <a href="tel:+79949940433">+7 (994) 994-04-33</a>
