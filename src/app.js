@@ -520,6 +520,7 @@ function renderService(id) {
             <div class="detail-actions">
               <button class="button button--primary add-to-cart" type="button" data-service-id="${escapeHtml(service.id)}">Добавить в заявку <span>${icons.plus}</span></button>
               <a class="button button--glass" href="${project.phoneHref}">Позвонить</a>
+              ${service.externalUrl ? `<a class="button button--glass" href="${escapeHtml(service.externalUrl)}" target="_blank" rel="noreferrer">${escapeHtml(service.externalLabel || "Открыть сайт партнёра ↗")}</a>` : ""}
             </div>
             <p class="detail-note">Точную стоимость подтвердим после проверки даты, места и состава программы.</p>
           </div>
