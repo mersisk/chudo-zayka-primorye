@@ -1,0 +1,25 @@
+# Шаблон для /etc/systemd/system/chudozaika-api.service
+# Не включайте сервис, пока в репозитории не появится server/index.mjs.
+
+[Unit]
+Description=Chudo Zayka Node.js API
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=chudozaika
+Group=chudozaika
+WorkingDirectory=/srv/chudozaika/app
+EnvironmentFile=/etc/chudozaika/api.env
+ExecStart=/usr/bin/node /srv/chudozaika/app/server/index.mjs
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

@@ -25,18 +25,21 @@ const pageHtml = (meta) => {
   const schema = JSON.stringify([organizationSchema(), pageSchema(meta)]);
   return (indexHtml
     .replaceAll("__ASSET_VERSION__", assetVersion)
-    .replace('<meta name="description" content="«Чудо Зайка» — аниматорское агентство во Владивостоке: детские аниматоры, шоу-программы, экспресс-поздравления, выпускные и праздники для детей." data-seo="description">', `<meta name="description" content="${meta.description}" data-seo="description">`)
+    .replace('<meta name="description" content="«Чудо Зайка» — аниматорское агентство: детские аниматоры, шоу-программы и экспресс-поздравления во Владивостоке, Большом Камне, Находке и по Приморскому краю." data-seo="description">', `<meta name="description" content="${meta.description}" data-seo="description">`)
     .replace('<meta name="robots" content="index,follow" data-seo="robots">', `<meta name="robots" content="index,follow" data-seo="robots">`)
-    .replace('<link rel="canonical" href="https://mersisk.github.io/chudo-zayka-primorye/" data-seo="canonical">', `<link rel="canonical" href="${canonical}" data-seo="canonical">`)
-    .replace('<meta property="og:title" content="Чудо Зайка — аниматорское агентство во Владивостоке" data-seo="og:title">', `<meta property="og:title" content="${meta.title}" data-seo="og:title">`)
-    .replace('<meta property="og:description" content="Детские аниматоры, шоу-программы и праздники во Владивостоке." data-seo="og:description">', `<meta property="og:description" content="${meta.description}" data-seo="og:description">`)
-    .replace('<meta property="og:image" content="https://mersisk.github.io/chudo-zayka-primorye/public/media/catalog/animator-cards/photo-509.jpg" data-seo="og:image">', `<meta property="og:image" content="${imageUrl(meta.image)}" data-seo="og:image">`)
-    .replace('<meta property="og:url" content="https://mersisk.github.io/chudo-zayka-primorye/" data-seo="og:url">', `<meta property="og:url" content="${canonical}" data-seo="og:url">`)
-    .replace('<title>Чудо Зайка — аниматорское агентство во Владивостоке</title>', `<title>${meta.title}</title>`)
+    .replace(/<meta name="description"[^>]*data-seo="description">/, `<meta name="description" content="${meta.description}" data-seo="description">`)
+    .replace(/<link rel="canonical"[^>]*data-seo="canonical">/, `<link rel="canonical" href="${canonical}" data-seo="canonical">`)
+    .replace(/<meta property="og:title"[^>]*data-seo="og:title">/, `<meta property="og:title" content="${meta.title}" data-seo="og:title">`)
+    .replace(/<meta property="og:description"[^>]*data-seo="og:description">/, `<meta property="og:description" content="${meta.description}" data-seo="og:description">`)
+    .replace(/<meta property="og:image"[^>]*data-seo="og:image">/, `<meta property="og:image" content="${imageUrl(meta.image)}" data-seo="og:image">`)
+    .replace(/<meta property="og:url"[^>]*data-seo="og:url">/, `<meta property="og:url" content="${canonical}" data-seo="og:url">`)
+    .replace(/<title>[^<]*<\/title>/, `<title>${meta.title}</title>`)
     .replace('<head>', `<head><base href="${basePath}">`)
     .replace(/<div id="app">[\s\S]*?<\/div>\s*<script src="\.\/runtime-config\.js">/, `<div id="app">${staticSeoMarkup(meta)}</div>\n    <script src="./runtime-config.js">`)
     .replace(/<script id="seo-schema" type="application\/ld\+json">[\s\S]*?<\/script>/, `<script id="seo-schema" type="application/ld+json">${schema}</script>`));
 };
+
+await writeFile(builtIndex, pageHtml(seoForPath("/")));
 
 for (const path of renderablePaths()) {
   if (path === "/") continue;

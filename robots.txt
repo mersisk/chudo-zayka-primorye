@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://mersisk.github.io/chudo-zayka-primorye/sitemap.xml
+Sitemap: https://chydozaika.ru/sitemap.xml

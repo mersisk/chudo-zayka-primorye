@@ -10,7 +10,7 @@ const sitemap = await readFile(resolve(dist, "sitemap.xml"), "utf8");
 const robots = await readFile(resolve(dist, "robots.txt"), "utf8");
 
 assert.match(robots, /Allow: \//);
-assert.match(robots, /Sitemap: https:\/\/mersisk\.github\.io\/chudo-zayka-primorye\/sitemap\.xml/);
+assert.match(robots, new RegExp(`Sitemap: ${absoluteUrl("/sitemap.xml").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
 for (const path of indexablePaths()) {
   assert.match(sitemap, new RegExp(absoluteUrl(path).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   if (path === "/") continue;

@@ -65,7 +65,7 @@ export function renderShell({ title, nav, content, cartCount = 0, backHref = "",
     <header class="site-header-wrap">
       <div class="site-header">
         <a class="brand" href="${routeHref("/")}" aria-label="Чудо Зайка — на главную">
-          <img src="./public/media/logo.jpg" alt="">
+          <img src="./public/media/logo.jpg" alt="Логотип аниматорского агентства «Чудо Зайка»">
           <span><strong>Чудо Зайка</strong><small>аниматорское агентство</small></span>
         </a>
         <nav id="site-nav" class="nav" aria-label="Главная навигация">
@@ -103,7 +103,7 @@ export function renderShell({ title, nav, content, cartCount = 0, backHref = "",
     <footer class="site-footer-wrap">
       <div class="site-footer">
         <a class="brand brand--footer" href="${routeHref("/")}">
-          <img src="./public/media/logo.jpg" alt="">
+          <img src="./public/media/logo.jpg" alt="Логотип аниматорского агентства «Чудо Зайка»">
           <span><strong>Чудо Зайка</strong><small>Владивосток · Приморский край</small></span>
         </a>
         <div class="footer-links">

@@ -1,14 +1,16 @@
 import assert from "node:assert/strict";
 import { absoluteUrl, imageUrl, indexablePaths, organizationSchema, seoForPath } from "../src/seo.js";
 
+const expectedSiteUrl = "https://chydozaika.ru";
+
 const paths = indexablePaths();
 assert.ok(paths.length > 20, "Карта сайта должна включать публичные страницы.");
 assert.equal(new Set(paths).size, paths.length, "В карте сайта не должно быть дублей.");
 assert.ok(paths.every((path) => !path.includes("#")), "Индексируемые URL не должны использовать hash.");
-assert.equal(absoluteUrl("/service/arthur-pirozhkov"), "https://mersisk.github.io/chudo-zayka-primorye/service/arthur-pirozhkov");
-assert.equal(imageUrl("./public/media/logo.jpg"), "https://mersisk.github.io/chudo-zayka-primorye/public/media/logo.jpg");
+assert.equal(absoluteUrl("/service/arthur-pirozhkov"), `${expectedSiteUrl}/service/arthur-pirozhkov`);
+assert.equal(imageUrl("./public/media/logo.jpg"), `${expectedSiteUrl}/public/media/logo.jpg`);
 const home = seoForPath("/");
-assert.match(home.title, /аниматорское агентство во Владивостоке/i);
+assert.match(home.title, /аниматоры во Владивостоке и Приморском крае/i);
 assert.match(home.description, /Чудо Зайка/);
 for (const path of paths) {
   const meta = seoForPath(path);
@@ -21,4 +23,5 @@ const business = organizationSchema();
 assert.equal(business.name, "Чудо Зайка");
 assert.equal(business.address.addressLocality, "Владивосток");
 assert.equal(business.telephone, "+7 (994) 994-04-33");
+assert.deepEqual(business.areaServed.map((area) => area.name), ["Владивосток", "Большой Камень", "Находка", "Артём", "Уссурийск", "Фокино", "Приморский край"]);
 console.log("SEO-проверка пройдена");

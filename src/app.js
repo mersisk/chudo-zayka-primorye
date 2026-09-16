@@ -259,7 +259,7 @@ function renderHome() {
   const tickerGroup = tickerItems.map((item) => `<span class="ticker__item">${escapeHtml(item)} <i>${icons.spark}</i></span>`).join("");
 
   renderShell({
-    title: `${project.name} — аниматорское агентство в Приморье`,
+    title: "Чудо Зайка — аниматоры во Владивостоке и Приморском крае",
     nav: nav("home"),
     cartCount: readCart().length,
     content: `
@@ -269,7 +269,7 @@ function renderHome() {
         <div class="container hero-layout">
           <div class="hero-copy">
             <p class="eyebrow"><span>${icons.spark}</span> Владивосток · Приморский край</p>
-            <h1>Чудо Зайка<br><em>во Владивостоке</em></h1>
+            <h1>Чудо Зайка<br><em>в Приморском крае</em></h1>
             <p class="hero-lead">${escapeHtml(project.lead)}</p>
             <div class="hero-actions">
               <a class="button button--primary magnetic" href="${routeHref("/catalog/animators")}">Открыть каталог <span>${icons.arrow}</span></a>

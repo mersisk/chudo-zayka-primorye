@@ -15,10 +15,10 @@ export const imageUrl = (image = project.logo) => `${siteUrl}/${String(image).re
 
 const homepage = {
   path: "/",
-  title: "Чудо Зайка — аниматорское агентство во Владивостоке",
-  description: "«Чудо Зайка» — аниматорское агентство во Владивостоке: детские аниматоры, шоу-программы, экспресс-поздравления, выпускные и праздники для детей.",
+  title: "Чудо Зайка — аниматоры во Владивостоке и Приморском крае",
+  description: "«Чудо Зайка» — аниматорское агентство: детские аниматоры, шоу-программы и экспресс-поздравления во Владивостоке, Большом Камне, Находке и по Приморскому краю.",
   image: "./public/media/catalog/animator-cards/photo-509.jpg",
-  h1: "Чудо Зайка — аниматорское агентство во Владивостоке",
+  h1: "Чудо Зайка — аниматорское агентство в Приморском крае",
 };
 
 export function seoForPath(inputPath = "/") {
@@ -76,14 +76,22 @@ export function organizationSchema() {
     "@context": "https://schema.org",
     "@type": ["LocalBusiness", "EntertainmentBusiness"],
     name: project.name,
-    description: "Аниматорское агентство: детские аниматоры, шоу-программы и праздники во Владивостоке.",
+    description: "Аниматорское агентство: детские аниматоры, шоу-программы и праздники во Владивостоке и Приморском крае.",
     url: siteUrl,
     logo: imageUrl(project.logo),
     image: imageUrl(homepage.image),
     telephone: project.phone,
     sameAs: [project.telegram],
     address: { "@type": "PostalAddress", addressLocality: "Владивосток", addressRegion: "Приморский край", addressCountry: "RU" },
-    areaServed: [{ "@type": "City", name: "Владивосток" }, { "@type": "AdministrativeArea", name: "Приморский край" }],
+    areaServed: [
+      { "@type": "City", name: "Владивосток" },
+      { "@type": "City", name: "Большой Камень" },
+      { "@type": "City", name: "Находка" },
+      { "@type": "City", name: "Артём" },
+      { "@type": "City", name: "Уссурийск" },
+      { "@type": "City", name: "Фокино" },
+      { "@type": "AdministrativeArea", name: "Приморский край" },
+    ],
   };
 }
 
@@ -100,5 +108,5 @@ export function pageSchema(meta) {
 }
 
 export function staticSeoMarkup(meta) {
-  return `<main id="main"><article><h1>${meta.h1}</h1><p>${meta.description}</p><p>«Чудо Зайка» — аниматорское агентство во Владивостоке. Выберите программу и оставьте заявку на сайте.</p></article></main>`;
+  return `<main id="main"><article><h1>${meta.h1}</h1><p>${meta.description}</p><p>«Чудо Зайка» — аниматорское агентство для детских праздников во Владивостоке и Приморском крае. Выберите программу и оставьте заявку на сайте.</p></article></main>`;
 }
