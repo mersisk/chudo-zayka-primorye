@@ -3,8 +3,10 @@ import { readFile, stat } from "node:fs/promises";
 import { extname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const projectRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
+const sourceRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
+const projectRoot = resolve(sourceRoot, process.env.SITE_ROOT || ".");
 const port = Number(process.env.PORT || 4173);
+const siteBase = (process.env.SITE_BASE || "").replace(/\/$/, "");
 
 const mime = {
   ".html": "text/html; charset=utf-8",
@@ -25,7 +27,8 @@ const mime = {
 
 function safePath(urlPath) {
   const decoded = decodeURIComponent(urlPath.split("?")[0]);
-  const normalized = normalize(decoded).replace(/^(\.\.[/\\])+/, "");
+  const relativeUrl = siteBase && decoded.startsWith(siteBase) ? (decoded.slice(siteBase.length) || "/") : decoded;
+  const normalized = normalize(relativeUrl).replace(/^(\.\.[/\\])+/, "");
   return join(projectRoot, normalized === "/" ? "index.html" : normalized);
 }
 
@@ -33,7 +36,8 @@ const server = createServer(async (req, res) => {
   try {
     let filePath = safePath(req.url || "/");
     const info = await stat(filePath).catch(() => null);
-    if (!info || !info.isFile()) filePath = join(projectRoot, "index.html");
+    if (info?.isDirectory()) filePath = join(filePath, "index.html");
+    else if (!info?.isFile()) filePath = join(projectRoot, "index.html");
 
     const body = await readFile(filePath);
     res.writeHead(200, {

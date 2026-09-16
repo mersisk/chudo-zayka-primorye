@@ -1,7 +1,9 @@
 export const project = {
   name: "Чудо Зайка",
+  siteUrl: "https://mersisk.github.io/chudo-zayka-primorye",
+  logo: "./public/media/logo.jpg",
   title: "Праздник, который начинается с улыбки",
-  lead: "Аниматоры, экспресс-поздравления, шоу и праздничные станции по Владивостоку и Приморскому краю.",
+  lead: "Аниматорское агентство «Чудо Зайка»: детские аниматоры, экспресс-поздравления, шоу и праздничные станции во Владивостоке и Приморском крае.",
   phone: "+7 (994) 994-04-33",
   phoneHref: "tel:+79949940433",
   telegram: "https://t.me/CongratulationsinPrimorye",

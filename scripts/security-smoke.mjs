@@ -12,7 +12,8 @@ const [index, runtime, app, ui] = await Promise.all([
 assert.match(index, /Content-Security-Policy/);
 assert.match(index, /object-src 'none'/);
 assert.match(index, /form-action 'self'/);
-assert.doesNotMatch(index, /<script(?![^>]*\bsrc=)/i);
+assert.doesNotMatch(index, /<script(?![^>]*(?:\bsrc=|type="application\/ld\+json"))/i);
+assert.match(index, /"@type":\["LocalBusiness","EntertainmentBusiness"\]/);
 assert.doesNotMatch(runtime, /(service[_-]?role|sb_secret_|sk-)[\w.-]{12,}/i);
 assert.match(app, /validateLead\(/);
 assert.match(app, /formatRussianPhone/);

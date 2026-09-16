@@ -38,13 +38,33 @@ export function setNotice(message, type = "success") {
   }, 4500);
 }
 
+function setMeta(selector, value) {
+  const element = document.querySelector(selector);
+  if (element) element.setAttribute(selector.includes("canonical") ? "href" : "content", value);
+}
+
+export function applySeo(path = route()) {
+  const meta = seoForPath(path);
+  document.title = meta.title;
+  setMeta('[data-seo="description"]', meta.description);
+  setMeta('[data-seo="robots"]', meta.noindex ? "noindex,nofollow" : "index,follow");
+  setMeta('[data-seo="canonical"]', absoluteUrl(meta.path));
+  setMeta('[data-seo="og:title"]', meta.title);
+  setMeta('[data-seo="og:description"]', meta.description);
+  setMeta('[data-seo="og:image"]', imageUrl(meta.image));
+  setMeta('[data-seo="og:url"]', absoluteUrl(meta.path));
+  const schema = document.querySelector('#seo-schema');
+  if (schema) schema.textContent = JSON.stringify([organizationSchema(), pageSchema(meta)]);
+  return meta;
+}
+
 export function renderShell({ title, nav, content, cartCount = 0, backHref = "", backLabel = "Назад" }) {
-  document.title = title;
+  applySeo();
   const root = qs("#app");
   root.innerHTML = `
     <header class="site-header-wrap">
       <div class="site-header">
-        <a class="brand" href="#/" aria-label="Чудо Зайка — на главную">
+        <a class="brand" href="${routeHref("/")}" aria-label="Чудо Зайка — на главную">
           <img src="./public/media/logo.jpg" alt="">
           <span><strong>Чудо Зайка</strong><small>аниматорское агентство</small></span>
         </a>
@@ -52,7 +72,7 @@ export function renderShell({ title, nav, content, cartCount = 0, backHref = "",
           ${nav.map((item) => `<a href="${item.href}" ${item.active ? 'aria-current="page"' : ""}>${escapeHtml(item.label)}</a>`).join("")}
         </nav>
         <button class="menu-toggle" type="button" aria-label="Открыть меню" aria-controls="site-nav" aria-expanded="false"><span></span><span></span><span></span><b>Меню</b></button>
-        <a class="cart-link" href="#/cart" data-cart-link aria-label="Открыть заявку, выбрано: ${cartCount}">
+        <a class="cart-link" href="${routeHref("/cart")}" data-cart-link aria-label="Открыть заявку, выбрано: ${cartCount}">
           <span>Заявка</span><b data-cart-count>${cartCount}</b>
         </a>
       </div>
@@ -82,20 +102,20 @@ export function renderShell({ title, nav, content, cartCount = 0, backHref = "",
     </dialog>
     <footer class="site-footer-wrap">
       <div class="site-footer">
-        <a class="brand brand--footer" href="#/">
+        <a class="brand brand--footer" href="${routeHref("/")}">
           <img src="./public/media/logo.jpg" alt="">
           <span><strong>Чудо Зайка</strong><small>Владивосток · Приморский край</small></span>
         </a>
         <div class="footer-links">
-          <a href="#/catalog/animators">Аниматоры и персонажи</a>
-          <a href="#/catalog/express">Экспресс-поздравления</a>
-          <a href="#/catalog/shows">Шоу-программы</a>
-          <a href="#/catalog/graduations">Выпускные</a>
-          <a href="#/catalog/services">Услуги на мероприятии</a>
-          <a href="#/catalog/programs">Пакеты и предложения</a>
-          <a href="#/reviews">Отзывы</a>
-          <a href="#/agreement">Пользовательское соглашение</a>
-          <a href="#/privacy">Политика конфиденциальности</a>
+          <a href="${routeHref("/catalog/animators")}">Аниматоры и персонажи</a>
+          <a href="${routeHref("/catalog/express")}">Экспресс-поздравления</a>
+          <a href="${routeHref("/catalog/shows")}">Шоу-программы</a>
+          <a href="${routeHref("/catalog/graduations")}">Выпускные</a>
+          <a href="${routeHref("/catalog/services")}">Услуги на мероприятии</a>
+          <a href="${routeHref("/catalog/programs")}">Пакеты и предложения</a>
+          <a href="${routeHref("/reviews")}">Отзывы</a>
+          <a href="${routeHref("/agreement")}">Пользовательское соглашение</a>
+          <a href="${routeHref("/privacy")}">Политика конфиденциальности</a>
         </div>
         <div class="footer-contact">
           <a href="tel:+79949940433">+7 (994) 994-04-33</a>
@@ -120,12 +140,23 @@ export function renderShell({ title, nav, content, cartCount = 0, backHref = "",
 }
 
 export function route() {
-  const hash = location.hash.replace(/^#/, "") || "/";
-  return hash.split("?")[0];
+  const hash = location.hash.replace(/^#/, "");
+  if (hash) return hash.split("?")[0];
+  const sitePath = new URL("https://mersisk.github.io/chudo-zayka-primorye/").pathname.replace(/\/$/, "");
+  const pathname = decodeURIComponent(location.pathname);
+  const path = pathname.startsWith(sitePath) ? pathname.slice(sitePath.length) : pathname;
+  return (path.replace(/\/index\.html$/, "").replace(/\/$/, "") || "/").split("?")[0];
+}
+
+export function routeHref(path = "/") {
+  const normalized = `/${String(path).replace(/^\/+|\/+$/g, "")}`.replace(/\/{2,}/g, "/");
+  const base = location.hostname.endsWith("github.io") ? "/chudo-zayka-primorye" : "";
+  return `${base}${normalized === "/" ? "/" : normalized}`;
 }
 
 export function onRouteChange(callback) {
   addEventListener("hashchange", callback);
+  addEventListener("popstate", callback);
   callback();
 }
 
@@ -158,3 +189,4 @@ export function renderLogin() {
     </section>
   `;
 }
+import { absoluteUrl, imageUrl, organizationSchema, pageSchema, seoForPath } from "./seo.js";

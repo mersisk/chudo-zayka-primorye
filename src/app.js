@@ -10,6 +10,7 @@ import {
   renderLogin,
   renderShell,
   route,
+  routeHref,
   setNotice,
   statusLabel,
 } from "./ui.js";
@@ -83,13 +84,13 @@ function servicePrice(service, prefix = "от") {
 
 function nav(active) {
   return [
-    { href: "#/", label: "Главная", active: active === "home" },
+    { href: routeHref("/"), label: "Главная", active: active === "home" },
     ...categories.map((category) => ({
-      href: `#/catalog/${category.id}`,
+      href: routeHref(`/catalog/${category.id}`),
       label: category.navTitle,
       active: active === category.id,
     })),
-    { href: "#/reviews", label: "Отзывы", active: active === "reviews" },
+    { href: routeHref("/reviews"), label: "Отзывы", active: active === "reviews" },
   ];
 }
 
@@ -119,19 +120,19 @@ function mediaCallouts(items, className = "") {
 function serviceCard(service, featured = false) {
   return `
     <article class="service-card tilt-card reveal ${featured ? "service-card--featured" : ""}">
-      <a class="service-card__media" href="#/service/${encodeURIComponent(service.id)}" aria-label="Подробнее: ${escapeHtml(service.title)}">
+      <a class="service-card__media" href="${routeHref(`/service/${encodeURIComponent(service.id)}`)}" aria-label="Подробнее: ${escapeHtml(service.title)}">
         ${mediaStage(service.image, service.title)}
         <span class="media-shine" aria-hidden="true"></span>
         ${mediaCallouts([service.duration, "реальное фото"], "media-callouts--compact")}
       </a>
       <div class="service-card__body">
         <p class="micro-label">${escapeHtml(service.badge)} · ${escapeHtml(categoryLabel(service.category))} · ${escapeHtml(service.duration)}</p>
-        <h3><a href="#/service/${encodeURIComponent(service.id)}">${escapeHtml(service.title)}</a></h3>
+        <h3><a href="${routeHref(`/service/${encodeURIComponent(service.id)}`)}">${escapeHtml(service.title)}</a></h3>
         <p>${escapeHtml(service.short)}</p>
         <div class="service-card__footer">
           <strong>${servicePrice(service)}</strong>
           <div class="service-card__actions">
-            <a class="round-link" href="#/service/${encodeURIComponent(service.id)}" aria-label="Открыть ${escapeHtml(service.title)}">${icons.arrow}</a>
+            <a class="round-link" href="${routeHref(`/service/${encodeURIComponent(service.id)}`)}" aria-label="Открыть ${escapeHtml(service.title)}">${icons.arrow}</a>
             <button class="icon-button add-to-cart" type="button" data-service-id="${escapeHtml(service.id)}" aria-label="Добавить ${escapeHtml(service.title)} в заявку">${icons.plus}</button>
           </div>
         </div>
@@ -268,11 +269,11 @@ function renderHome() {
         <div class="container hero-layout">
           <div class="hero-copy">
             <p class="eyebrow"><span>${icons.spark}</span> Владивосток · Приморский край</p>
-            <h1>Праздник<br><em>на полную</em></h1>
+            <h1>Чудо Зайка<br><em>во Владивостоке</em></h1>
             <p class="hero-lead">${escapeHtml(project.lead)}</p>
             <div class="hero-actions">
-              <a class="button button--primary magnetic" href="#/catalog/animators">Открыть каталог <span>${icons.arrow}</span></a>
-              <a class="button button--glass" href="#/reviews">Смотреть отзывы</a>
+              <a class="button button--primary magnetic" href="${routeHref("/catalog/animators")}">Открыть каталог <span>${icons.arrow}</span></a>
+              <a class="button button--glass" href="${routeHref("/reviews")}">Смотреть отзывы</a>
             </div>
             <a class="hero-phone" href="${project.phoneHref}" aria-label="Позвонить в Чудо Зайка по номеру ${escapeHtml(project.phone)}"><span>Позвонить сейчас</span><strong>${escapeHtml(project.phone)}</strong></a>
             <div class="hero-facts" aria-label="Коротко о каталоге">
@@ -305,13 +306,13 @@ function renderHome() {
 
       <section class="section latest-offer-section">
         <div class="container latest-offer reveal">
-          <a class="latest-offer__media" href="#/service/${currentOffer.id}">${mediaStage(currentOffer.image, currentOffer.title)}${mediaCallouts(["21–24 декабря", "1 900 ₽ с человека"], "media-callouts--compact")}</a>
+          <a class="latest-offer__media" href="${routeHref(`/service/${currentOffer.id}`)}">${mediaStage(currentOffer.image, currentOffer.title)}${mediaCallouts(["21–24 декабря", "1 900 ₽ с человека"], "media-callouts--compact")}</a>
           <div class="latest-offer__copy">
             <p class="eyebrow">Последнее предложение · 21–24 декабря</p>
             <h2>Автобус<br>Деда Мороза</h2>
             <p>Впервые в Большом Камне — часовое новогоднее приключение: танцы, песни, интерактивы и аттракцион эмоций. Каждому ребёнку — блеск-тату и новогодний коктейль. Бронирование: ${escapeHtml(project.phone)}.</p>
             <strong>${servicePrice(currentOffer, "")} · места ограничены</strong>
-            <div class="latest-offer__actions"><a class="button button--primary" href="#/service/${currentOffer.id}">Смотреть предложение <span>${icons.arrow}</span></a><a class="button button--dark" href="${project.phoneHref}">Забронировать</a></div>
+            <div class="latest-offer__actions"><a class="button button--primary" href="${routeHref(`/service/${currentOffer.id}`)}">Смотреть предложение <span>${icons.arrow}</span></a><a class="button button--dark" href="${project.phoneHref}">Забронировать</a></div>
           </div>
         </div>
       </section>
@@ -324,7 +325,7 @@ function renderHome() {
           </div>
           <div class="format-grid">
             ${categories.map((category, index) => `
-              <a class="format-card reveal" style="--delay:${index * 110}ms" href="#/catalog/${category.id}">
+              <a class="format-card reveal" style="--delay:${index * 110}ms" href="${routeHref(`/catalog/${category.id}`)}">
                 <span class="format-card__media">${mediaStage(category.image, category.title)}</span>
                 <span class="format-card__content">
                   <span class="format-card__number">0${index + 1}</span>
@@ -343,7 +344,7 @@ function renderHome() {
         <div class="container">
           <div class="section-heading reveal">
             <div><p class="eyebrow">Экспресс-поздравления</p><h2>Большая линейка<br>для короткого сюрприза</h2></div>
-            <a class="text-link" href="#/catalog/express">Все персонажи <span>${icons.arrow}</span></a>
+            <a class="text-link" href="${routeHref("/catalog/express")}">Все персонажи <span>${icons.arrow}</span></a>
           </div>
           <div class="service-grid">${express.map((service) => serviceCard(service)).join("")}</div>
         </div>
@@ -353,7 +354,7 @@ function renderHome() {
         <div class="container">
           <div class="section-heading reveal">
             <div><p class="eyebrow">Шоу-программы</p><h2>Можно выбрать<br>отдельное шоу</h2></div>
-            <a class="text-link" href="#/catalog/shows">Все шоу <span>${icons.arrow}</span></a>
+            <a class="text-link" href="${routeHref("/catalog/shows")}">Все шоу <span>${icons.arrow}</span></a>
           </div>
           <div class="service-grid">${shows.map((service) => serviceCard(service)).join("")}</div>
         </div>
@@ -377,7 +378,7 @@ function renderHome() {
         <div class="container">
           <div class="section-heading reveal">
             <div><p class="eyebrow">Реальные отзывы</p><h2>Эмоции говорят<br>сами за себя</h2></div>
-            <a class="text-link" href="#/reviews">Все отзывы <span>${icons.arrow}</span></a>
+            <a class="text-link" href="${routeHref("/reviews")}">Все отзывы <span>${icons.arrow}</span></a>
           </div>
           <div class="review-grid">${reviews.slice(0, 3).map(reviewCard).join("")}</div>
         </div>
@@ -398,7 +399,7 @@ function renderFinalCta() {
           <p class="eyebrow">Есть дата? Зафиксируем её</p>
           <h2>Соберите праздник<br>в одной заявке</h2>
           <p>Добавляйте героев и программы. Мы проверим свободное время и свяжемся, чтобы уточнить детали.</p>
-          <a class="button button--light" href="#/cart">Открыть заявку <span>${icons.arrow}</span></a>
+          <a class="button button--light" href="${routeHref("/cart")}">Открыть заявку <span>${icons.arrow}</span></a>
         </div>
       </div>
     </section>
@@ -426,7 +427,7 @@ function renderCatalogGroups(categoryId) {
         ${groups.map((group, index) => {
           const count = services.filter((item) => item.category === categoryId && item.subgroup === group.id).length;
           return `
-          <a class="catalog-group-card reveal" style="--delay:${index * 70}ms" href="${escapeHtml(group.partnerUrl || `#/catalog/${categoryId}/${group.id}`)}" ${group.partnerUrl ? `data-partner-url="${escapeHtml(group.partnerUrl)}" data-partner-title="${escapeHtml(group.title)}" data-partner-name="${escapeHtml(group.partnerName || group.partnerUrl)}"` : ""}>
+          <a class="catalog-group-card reveal" style="--delay:${index * 70}ms" href="${escapeHtml(group.partnerUrl || routeHref(`/catalog/${categoryId}/${group.id}`))}" ${group.partnerUrl ? `data-partner-url="${escapeHtml(group.partnerUrl)}" data-partner-title="${escapeHtml(group.title)}" data-partner-name="${escapeHtml(group.partnerName || group.partnerUrl)}"` : ""}>
             <div class="catalog-group-card__visual">
               ${mediaStage(group.image, group.title, "catalog-group-card__media")}
               ${mediaCallouts([`${count} ${count === 1 ? "вариант" : "вариантов"}`], "media-callouts--compact")}
@@ -458,7 +459,7 @@ function renderCatalog(categoryId, subgroupId = "") {
     title: `${heroTitle} — ${project.name}`,
     nav: nav(category.id),
     cartCount: readCart().length,
-    backHref: activeGroup ? `#/catalog/${category.id}` : "#/",
+    backHref: activeGroup ? routeHref(`/catalog/${category.id}`) : routeHref("/"),
     backLabel: activeGroup ? `Все разделы «${category.title}»` : "На главную",
     content: `
       <section class="catalog-hero">
@@ -478,7 +479,7 @@ function renderCatalog(categoryId, subgroupId = "") {
       <section class="section catalog-section">
         <div class="container">
           <div class="catalog-switch reveal" role="navigation" aria-label="Формат праздника">
-            ${categories.map((item) => `<a href="#/catalog/${item.id}" ${item.id === category.id ? 'aria-current="page"' : ""}>${escapeHtml(item.title)}</a>`).join("")}
+            ${categories.map((item) => `<a href="${routeHref(`/catalog/${item.id}`)}" ${item.id === category.id ? 'aria-current="page"' : ""}>${escapeHtml(item.title)}</a>`).join("")}
           </div>
           ${activeGroup ? `
             <div class="section-heading catalog-services-heading reveal"><div><p class="eyebrow">Каждый вариант — отдельно</p><h2>${escapeHtml(activeGroup.title)}</h2></div><p>${filtered.length} ${filtered.length === 1 ? "вариант" : "вариантов"} с фотографиями из мероприятий.</p></div>
@@ -544,7 +545,7 @@ function renderService(id) {
     title: `${service.title} — ${project.name}`,
     nav: nav(service.category),
     cartCount: readCart().length,
-    backHref: `#/catalog/${service.category}/${service.subgroup}`,
+    backHref: routeHref(`/catalog/${service.category}/${service.subgroup}`),
     backLabel: `К разделу «${categoryLabel(service.category)}»`,
     content: `
       <section class="detail-hero">
@@ -592,7 +593,7 @@ function renderReviews() {
     title: `Отзывы — ${project.name}`,
     nav: nav("reviews"),
     cartCount: readCart().length,
-    backHref: "#/",
+    backHref: routeHref("/"),
     backLabel: "На главную",
     content: `
       <section class="reviews-hero">
@@ -647,7 +648,7 @@ function renderCart() {
     title: `Заявка — ${project.name}`,
     nav: nav("cart"),
     cartCount: items.length,
-    backHref: "#/",
+    backHref: routeHref("/"),
     backLabel: "На главную",
     content: `
       <section class="cart-page">
@@ -669,14 +670,14 @@ function renderCart() {
                   <label>Возраст ребёнка<input name="childAge" inputmode="numeric" maxlength="30" placeholder="Если праздник детский"></label>
                   <label class="form-grid__wide">Комментарий<textarea name="comment" maxlength="1000" placeholder="Место, количество гостей, пожелания"></textarea></label>
                 </div>
-                <label class="consent"><input name="consent" type="checkbox" required><span>Я принимаю <a href="#/agreement" target="_blank" rel="noreferrer">пользовательское соглашение</a> и даю согласие на обработку персональных данных по <a href="#/privacy" target="_blank" rel="noreferrer">политике конфиденциальности</a> для обработки заявки и связи со мной.</span></label>
+                <label class="consent"><input name="consent" type="checkbox" required><span>Я принимаю <a href="${routeHref("/agreement")}" target="_blank" rel="noreferrer">пользовательское соглашение</a> и даю согласие на обработку персональных данных по <a href="${routeHref("/privacy")}" target="_blank" rel="noreferrer">политике конфиденциальности</a> для обработки заявки и связи со мной.</span></label>
                 <p id="form-error" class="field-error" hidden></p>
                 <button class="button button--primary button--wide" type="submit">Отправить заявку <span>${icons.arrow}</span></button>
                 <p class="form-note">Пока данные сохраняются только в браузере этого устройства.</p>
               </form>
             </div>
           ` : `
-            <div class="empty-cart reveal"><span>✦</span><h2>Корзина пока пустая</h2><p>Выберите героя или шоу — всё добавится сюда, а затем уйдёт одной заявкой.</p><div><a class="button button--primary" href="#/catalog/express">Экспресс-поздравления</a><a class="button button--glass" href="#/catalog/shows">Шоу-программы</a></div></div>
+            <div class="empty-cart reveal"><span>✦</span><h2>Корзина пока пустая</h2><p>Выберите героя или шоу — всё добавится сюда, а затем уйдёт одной заявкой.</p><div><a class="button button--primary" href="${routeHref("/catalog/express")}">Экспресс-поздравления</a><a class="button button--glass" href="${routeHref("/catalog/shows")}">Шоу-программы</a></div></div>
           `}
         </div>
       </section>
@@ -722,7 +723,7 @@ function renderCart() {
     try {
       await store.create("lead", payload, "new");
       writeCart([]);
-      location.hash = "#/thanks";
+      location.href = routeHref("/thanks");
     } catch (cause) {
       error.textContent = cause instanceof Error ? cause.message : "Не удалось сохранить заявку";
       error.hidden = false;
@@ -741,9 +742,9 @@ function renderThanks() {
     title: `Заявка сохранена — ${project.name}`,
     nav: nav("cart"),
     cartCount: 0,
-    backHref: "#/",
+    backHref: routeHref("/"),
     backLabel: "На главную",
-    content: `<section class="thanks-page"><div class="thanks-orbit" aria-hidden="true"></div><div class="container"><div class="thanks-card reveal"><span class="thanks-icon">${icons.check}</span><p class="eyebrow">Заявка сохранена</p><h1>Праздник<br>уже ближе</h1><p>В этой версии заявка хранится только на вашем устройстве. Когда подключим базу, она будет сразу попадать менеджеру.</p><div><a class="button button--primary" href="#/">На главную</a><a class="button button--glass" href="${project.phoneHref}">Позвонить сейчас</a></div></div></div></section>`,
+    content: `<section class="thanks-page"><div class="thanks-orbit" aria-hidden="true"></div><div class="container"><div class="thanks-card reveal"><span class="thanks-icon">${icons.check}</span><p class="eyebrow">Заявка сохранена</p><h1>Праздник<br>уже ближе</h1><p>В этой версии заявка хранится только на вашем устройстве. Когда подключим базу, она будет сразу попадать менеджеру.</p><div><a class="button button--primary" href="${routeHref("/")}">На главную</a><a class="button button--glass" href="${project.phoneHref}">Позвонить сейчас</a></div></div></div></section>`,
   });
   bindMotion();
 }
@@ -767,7 +768,7 @@ function renderLegal(kind) {
     title: `${title} — ${project.name}`,
     nav: nav(""),
     cartCount: readCart().length,
-    backHref: "#/cart",
+    backHref: routeHref("/cart"),
     backLabel: "К заявке",
     content: `<section class="legal-page"><div class="container legal-page__content"><p class="eyebrow">Обновлено 15 сентября 2026</p><h1>${title}</h1><p class="hero-lead">Этот документ применяется к заявкам, отправленным через сайт.</p>${sections.map(([heading, text]) => `<section><h2>${escapeHtml(heading)}</h2><p>${escapeHtml(text)}</p></section>`).join("")}</div></section>`,
   });
@@ -778,11 +779,11 @@ async function workspaceContent() {
   const session = await store.session();
   if (store.mode === "supabase" && !session) return renderLogin();
   const records = await store.list("lead");
-  return `<section class="section workspace-page"><div class="container"><div class="section-heading"><div><p class="eyebrow">Внутренний экран</p><h1>Заявки</h1></div><p>${store.mode === "local" ? "Локальные записи видны только в этом браузере." : `Вход: ${escapeHtml(session?.user?.email || "владелец")}`}</p></div><div class="record-list">${records.length ? records.map((record) => `<article class="record" data-id="${record.id}"><div><span class="status-pill">${escapeHtml(statusLabel(record.status))}</span><h3>${escapeHtml(record.payload.name || "Без имени")}</h3><p><strong>${escapeHtml(record.payload.phone || record.payload.contact || "Контакт не указан")}</strong></p><p>${escapeHtml((record.payload.items || []).map((item) => item.title).join(", ") || record.payload.problem || "")}</p><p class="record-meta">${formatDate(record.created_at)}</p></div><div><label>Статус<select class="status-select">${["new", "contacted", "done"].map((status) => `<option value="${status}" ${record.status === status ? "selected" : ""}>${statusLabel(status)}</option>`).join("")}</select></label><button class="archive button button--glass button--small">В архив</button></div></article>`).join("") : `<div class="empty-cart"><h2>Заявок пока нет</h2><a class="button button--primary" href="#/">Открыть сайт</a></div>`}</div></div></section>`;
+  return `<section class="section workspace-page"><div class="container"><div class="section-heading"><div><p class="eyebrow">Внутренний экран</p><h1>Заявки</h1></div><p>${store.mode === "local" ? "Локальные записи видны только в этом браузере." : `Вход: ${escapeHtml(session?.user?.email || "владелец")}`}</p></div><div class="record-list">${records.length ? records.map((record) => `<article class="record" data-id="${record.id}"><div><span class="status-pill">${escapeHtml(statusLabel(record.status))}</span><h3>${escapeHtml(record.payload.name || "Без имени")}</h3><p><strong>${escapeHtml(record.payload.phone || record.payload.contact || "Контакт не указан")}</strong></p><p>${escapeHtml((record.payload.items || []).map((item) => item.title).join(", ") || record.payload.problem || "")}</p><p class="record-meta">${formatDate(record.created_at)}</p></div><div><label>Статус<select class="status-select">${["new", "contacted", "done"].map((status) => `<option value="${status}" ${record.status === status ? "selected" : ""}>${statusLabel(status)}</option>`).join("")}</select></label><button class="archive button button--glass button--small">В архив</button></div></article>`).join("") : `<div class="empty-cart"><h2>Заявок пока нет</h2><a class="button button--primary" href="${routeHref("/")}">Открыть сайт</a></div>`}</div></div></section>`;
 }
 
 async function renderWorkspace() {
-  renderShell({ title: `Заявки — ${project.name}`, nav: nav("workspace"), cartCount: readCart().length, backHref: "#/", backLabel: "На главную", content: '<section class="section"><div class="container"><p>Загружаем заявки…</p></div></section>' });
+  renderShell({ title: `Заявки — ${project.name}`, nav: nav("workspace"), cartCount: readCart().length, backHref: routeHref("/"), backLabel: "На главную", content: '<section class="section"><div class="container"><p>Загружаем заявки…</p></div></section>' });
   qs("#main").innerHTML = await workspaceContent();
 
   const loginForm = qs("#login-form");
@@ -817,7 +818,7 @@ async function renderWorkspace() {
 }
 
 function renderNotFound() {
-  renderShell({ title: `Страница не найдена — ${project.name}`, nav: nav(""), cartCount: readCart().length, backHref: "#/", backLabel: "На главную", content: `<section class="empty-cart"><h1>Здесь ничего нет</h1><p>Вернитесь в каталог и выберите программу.</p><a class="button button--primary" href="#/">На главную</a></section>` });
+  renderShell({ title: `Страница не найдена — ${project.name}`, nav: nav(""), cartCount: readCart().length, backHref: routeHref("/"), backLabel: "На главную", content: `<section class="empty-cart"><h1>Здесь ничего нет</h1><p>Вернитесь в каталог и выберите программу.</p><a class="button button--primary" href="${routeHref("/")}">На главную</a></section>` });
 }
 
 async function render() {
