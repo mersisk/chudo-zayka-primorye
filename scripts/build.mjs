@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import { absoluteUrl, imageUrl, indexablePaths, organizationSchema, pageSchema, renderablePaths, seoForPath, siteUrl, staticSeoMarkup } from "../src/seo.js";
+import { buildClientBundle } from "./client-bundle.mjs";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const dist = resolve(root, "dist");
@@ -10,14 +11,18 @@ const dist = resolve(root, "dist");
 await rm(dist, { recursive: true, force: true });
 await mkdir(dist, { recursive: true });
 
-for (const entry of ["index.html", "src", "runtime-config.js", "robots.txt"]) {
+for (const entry of ["index.html", "runtime-config.js", "robots.txt"]) {
   await cp(resolve(root, entry), resolve(dist, entry), { recursive: true });
 }
 
 const assetVersion = process.env.GITHUB_SHA?.slice(0, 12) || String(Date.now());
+const clientAssets = await buildClientBundle({ root, dist, version: assetVersion });
 const builtIndex = resolve(dist, "index.html");
-const indexHtml = await readFile(builtIndex, "utf8");
-await writeFile(builtIndex, indexHtml.replaceAll("__ASSET_VERSION__", assetVersion));
+const indexTemplate = await readFile(builtIndex, "utf8");
+const indexHtml = indexTemplate
+  .replace("./src/styles.css?v=__ASSET_VERSION__", clientAssets.styleHref)
+  .replace("./src/app.js?v=__ASSET_VERSION__", clientAssets.scriptHref)
+  .replaceAll("__ASSET_VERSION__", assetVersion);
 
 const basePath = `${new URL(siteUrl).pathname.replace(/\/$/, "")}/`;
 const criticalImages = (meta) => meta.path === "/"
