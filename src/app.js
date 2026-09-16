@@ -87,14 +87,10 @@ async function submitApplication(payload) {
     method: "POST",
     headers: { "content-type": "application/json" },
     credentials: "same-origin",
-    body: JSON.stringify({
-      ...payload,
-      consent: true,
-      items: payload.items.map((item) => ({ id: item.id })),
-    }),
+    body: JSON.stringify({ ...payload, consent: true }),
   });
   const result = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(result.error || "Не удалось отправить заявку");
+  if (!response.ok) throw new Error("Не удалось отправить заявку. Попробуйте ещё раз или свяжитесь с нами по телефону.");
   return result;
 }
 
@@ -114,8 +110,8 @@ function categoryLabel(category) {
   return categories.find((item) => item.id === category)?.title || "Программа";
 }
 
-function mediaStage(image, alt, className = "", loading = "lazy") {
-  const priority = loading === "" ? ' fetchpriority="high" decoding="async"' : ' decoding="async"';
+function mediaStage(image, alt, className = "", loading = "lazy", fetchPriority = "") {
+  const priority = `${fetchPriority ? ` fetchpriority="${fetchPriority}"` : ""} decoding="async"`;
   return `
     <span class="media-stage ${className}">
       <img class="media-stage__blur" src="${escapeHtml(image)}" alt="" aria-hidden="true" ${loading ? `loading="${loading}"` : ""}>
@@ -304,7 +300,7 @@ function renderHome() {
             <div class="hero-orbit hero-orbit--two" aria-hidden="true"></div>
             <div class="hero-collage">
               <div class="hero-photo-wrap">
-                ${mediaStage("./public/media/catalog/graduations/photo-500.jpg", "Игровая программа на выпускном", "", "")}
+                ${mediaStage("./public/media/catalog/graduations/photo-500.jpg", "Игровая программа на выпускном", "", "", "high")}
                 ${mediaCallouts(["живые эмоции", "реальные праздники", "всё под ключ"])}
               </div>
               <div class="hero-photo-small hero-photo-small--one">
@@ -670,7 +666,7 @@ function renderCart() {
     content: `
       <section class="cart-page">
         <div class="container">
-          <div class="cart-heading reveal"><div><p class="eyebrow">Ваша заявка</p><h1>Соберём всё<br>в один праздник</h1></div><p>Оставьте контакт и дату. Заявка сохранится локально; базу подключим на следующем этапе.</p></div>
+            <div class="cart-heading reveal"><div><p class="eyebrow">Ваша заявка</p><h1>Соберём всё<br>в один праздник</h1></div><p>Оставьте контакт и дату. Мы получим заявку и свяжемся, чтобы уточнить детали праздника.</p></div>
           ${items.length ? `
             <div class="cart-layout">
               <div class="cart-items reveal">
@@ -722,8 +718,7 @@ function renderCart() {
     });
     const payload = {
       ...checked.value,
-      items: items.map((item) => ({ id: item.id, title: item.title, category: item.category, duration: item.duration, image: item.image, price: item.price, priceUnit: item.priceUnit || null })),
-      knownTotal: items.reduce((sum, item) => sum + (item.price || 0), 0),
+      items: items.map((item) => ({ id: item.id })),
     };
     const error = qs("#form-error");
     if (!checked.valid) {
@@ -739,10 +734,17 @@ function renderCart() {
 
     try {
       await submitApplication(payload);
-      writeCart([]);
+      form.reset();
+      try {
+        writeCart([]);
+      } catch {
+        // Заявка уже принята API; ошибка очистки локальной корзины не должна скрывать успех.
+      }
       location.href = routeHref("/thanks");
     } catch (cause) {
-      error.textContent = cause instanceof Error ? cause.message : "Не удалось сохранить заявку";
+      error.textContent = cause instanceof Error
+        ? cause.message
+        : "Не удалось отправить заявку. Попробуйте ещё раз или свяжитесь с нами по телефону.";
       error.hidden = false;
       button.disabled = false;
       button.innerHTML = `Отправить заявку <span>${icons.arrow}</span>`;
@@ -756,12 +758,12 @@ function renderCart() {
 
 function renderThanks() {
   renderShell({
-    title: `Заявка сохранена — ${project.name}`,
+    title: `Заявка отправлена — ${project.name}`,
     nav: nav("cart"),
     cartCount: 0,
     backHref: routeHref("/"),
     backLabel: "На главную",
-    content: `<section class="thanks-page"><div class="thanks-orbit" aria-hidden="true"></div><div class="container"><div class="thanks-card reveal"><span class="thanks-icon">${icons.check}</span><p class="eyebrow">Заявка отправлена</p><h1>Праздник<br>уже ближе</h1><p>Менеджер получит заявку, проверит дату и свяжется с вами, чтобы уточнить детали.</p><div><a class="button button--primary" href="${routeHref("/")}">На главную</a><a class="button button--glass" href="${project.phoneHref}">Позвонить сейчас</a></div></div></div></section>`,
+    content: `<section class="thanks-page"><div class="thanks-orbit" aria-hidden="true"></div><div class="container"><div class="thanks-card reveal"><span class="thanks-icon">${icons.check}</span><p class="eyebrow">Заявка отправлена</p><h1>Праздник<br>уже ближе</h1><p>Спасибо! Мы получили вашу заявку и скоро свяжемся с вами.</p><div><a class="button button--primary" href="${routeHref("/")}">На главную</a><a class="button button--glass" href="${project.phoneHref}">Позвонить сейчас</a></div></div></div></section>`,
   });
   bindMotion();
 }

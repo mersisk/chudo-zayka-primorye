@@ -29,7 +29,7 @@ export function seoForPath(inputPath = "/") {
     description: "Отзывы родителей и гостей о детских праздниках, аниматорах и экспресс-поздравлениях агентства «Чудо Зайка» во Владивостоке.", image: "./public/media/hero-lol.jpg",
   };
   if (path === "/cart") return { path, title: "Заявка — Чудо Зайка", h1: "Оставить заявку", description: "Оставьте заявку на праздник в аниматорском агентстве «Чудо Зайка».", image: homepage.image, noindex: true };
-  if (path === "/thanks") return { path, title: "Заявка сохранена — Чудо Зайка", h1: "Заявка сохранена", description: "Заявка на праздник сохранена.", image: homepage.image, noindex: true };
+  if (path === "/thanks") return { path, title: "Заявка отправлена — Чудо Зайка", h1: "Заявка отправлена", description: "Спасибо! Мы получили вашу заявку и скоро свяжемся с вами.", image: homepage.image, noindex: true };
   if (path === "/agreement") return { path, title: "Пользовательское соглашение — Чудо Зайка", h1: "Пользовательское соглашение", description: "Пользовательское соглашение сайта аниматорского агентства «Чудо Зайка».", image: homepage.image, noindex: true };
   if (path === "/privacy") return { path, title: "Политика конфиденциальности — Чудо Зайка", h1: "Политика конфиденциальности", description: "Политика обработки персональных данных сайта «Чудо Зайка».", image: homepage.image, noindex: true };
   if (path.startsWith("/service/")) {

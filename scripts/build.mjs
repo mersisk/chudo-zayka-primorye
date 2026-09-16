@@ -20,6 +20,14 @@ const indexHtml = await readFile(builtIndex, "utf8");
 await writeFile(builtIndex, indexHtml.replaceAll("__ASSET_VERSION__", assetVersion));
 
 const basePath = `${new URL(siteUrl).pathname.replace(/\/$/, "")}/`;
+const criticalImages = (meta) => meta.path === "/"
+  ? [
+    "./public/media/catalog/graduations/photo-500.jpg",
+    "./public/media/catalog/inflatables/labubu/photo-337.jpg",
+    "./public/media/catalog/shows/neon/photo-559.jpg",
+  ]
+  : [meta.image];
+
 const pageHtml = (meta) => {
   const canonical = absoluteUrl(meta.path);
   const schema = JSON.stringify([organizationSchema(), pageSchema(meta)]);
@@ -33,7 +41,7 @@ const pageHtml = (meta) => {
     .replace(/<meta property="og:image"[^>]*data-seo="og:image">/, `<meta property="og:image" content="${imageUrl(meta.image)}" data-seo="og:image">`)
     .replace(/<meta property="og:url"[^>]*data-seo="og:url">/, `<meta property="og:url" content="${canonical}" data-seo="og:url">`)
     .replace(/<title>[^<]*<\/title>/, `<title>${meta.title}</title>`)
-    .replace("</head>", `<link rel="preload" as="image" href="${imageUrl(meta.image)}" fetchpriority="high"></head>`)
+    .replace("</head>", `${criticalImages(meta).map((image, index) => `<link rel="preload" as="image" href="${imageUrl(image)}"${index === 0 ? ' fetchpriority="high"' : ""}>`).join("")}</head>`)
     .replace('<head>', `<head><base href="${basePath}">`)
     .replace(/<div id="app">[\s\S]*?<\/div>\s*<script src="\.\/runtime-config\.js">/, `<div id="app">${staticSeoMarkup(meta)}</div>\n    <script src="./runtime-config.js">`)
     .replace(/<script id="seo-schema" type="application\/ld\+json">[\s\S]*?<\/script>/, `<script id="seo-schema" type="application/ld+json">${schema}</script>`));
