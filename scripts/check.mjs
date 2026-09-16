@@ -71,6 +71,12 @@ try {
   failures.push(`SEO: ${error.stderr?.toString() || error.message}`);
 }
 
+try {
+  execFileSync(process.execPath, [join(root, "scripts/routing-smoke.mjs")], { stdio: "pipe" });
+} catch (error) {
+  failures.push(`Маршрутизация: ${error.stderr?.toString() || error.message}`);
+}
+
 const secretPatterns = [
   /service[_-]?role\s*[:=]\s*["'][A-Za-z0-9._-]{20,}/i,
   /sb_secret_[A-Za-z0-9_-]{12,}/,
@@ -117,4 +123,5 @@ console.log("— локальный CRUD и публичная Supabase-вста
 console.log("— проверка валидации формы");
 console.log("— базовая проверка безопасности");
 console.log("— SEO-метаданные и индексируемые URL");
+console.log("— маршрутизация от корня и hash-якоря");
 console.log("— запуск локального сайта\n");

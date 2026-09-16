@@ -139,23 +139,27 @@ export function renderShell({ title, nav, content, cartCount = 0, backHref = "",
   });
 }
 
+export function getRoute({ hash, pathname } = {}) {
+  const hashRoute = decodeURIComponent((hash ?? globalThis.location?.hash ?? "").replace(/^#/, ""));
+  // Hash-маршруты прежней версии начинались с `#/`. Обычные якоря, например
+  // `#main` у ссылки «Перейти к содержимому», не должны менять страницу.
+  if (hashRoute.startsWith("/")) return (hashRoute.split("?")[0].replace(/\/$/, "") || "/");
+  return (decodeURIComponent(pathname ?? globalThis.location?.pathname ?? "/").replace(/\/index\.html$/, "").replace(/\/$/, "") || "/").split("?")[0];
+}
+
 export function route() {
-  const hash = location.hash.replace(/^#/, "");
-  if (hash) return hash.split("?")[0];
-  const sitePath = new URL("https://mersisk.github.io/chudo-zayka-primorye/").pathname.replace(/\/$/, "");
-  const pathname = decodeURIComponent(location.pathname);
-  const path = pathname.startsWith(sitePath) ? pathname.slice(sitePath.length) : pathname;
-  return (path.replace(/\/index\.html$/, "").replace(/\/$/, "") || "/").split("?")[0];
+  return getRoute();
 }
 
 export function routeHref(path = "/") {
   const normalized = `/${String(path).replace(/^\/+|\/+$/g, "")}`.replace(/\/{2,}/g, "/");
-  const base = location.hostname.endsWith("github.io") ? "/chudo-zayka-primorye" : "";
-  return `${base}${normalized === "/" ? "/" : normalized}`;
+  return normalized === "/" ? "/" : normalized;
 }
 
 export function onRouteChange(callback) {
-  addEventListener("hashchange", callback);
+  addEventListener("hashchange", () => {
+    if (location.hash.startsWith("#/")) callback();
+  });
   addEventListener("popstate", callback);
   callback();
 }

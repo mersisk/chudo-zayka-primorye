@@ -25,7 +25,6 @@ const pageHtml = (meta) => {
   const schema = JSON.stringify([organizationSchema(), pageSchema(meta)]);
   return (indexHtml
     .replaceAll("__ASSET_VERSION__", assetVersion)
-    .replace('<meta name="description" content="«Чудо Зайка» — аниматорское агентство: детские аниматоры, шоу-программы и экспресс-поздравления во Владивостоке, Большом Камне, Находке и по Приморскому краю." data-seo="description">', `<meta name="description" content="${meta.description}" data-seo="description">`)
     .replace('<meta name="robots" content="index,follow" data-seo="robots">', `<meta name="robots" content="index,follow" data-seo="robots">`)
     .replace(/<meta name="description"[^>]*data-seo="description">/, `<meta name="description" content="${meta.description}" data-seo="description">`)
     .replace(/<link rel="canonical"[^>]*data-seo="canonical">/, `<link rel="canonical" href="${canonical}" data-seo="canonical">`)

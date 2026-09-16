@@ -14,13 +14,7 @@
 
 ## Переменные и секреты
 
-Во время сборки задаётся только публичный адрес сайта:
-
-```bash
-SITE_URL=http://135.106.210.15 npm run build
-```
-
-Это нужно для canonical, sitemap, Open Graph и статических SEO-страниц. Пароль базы, `DATABASE_URL`, Telegram-токены и прокси-данные не нужны для текущей статической версии и не должны попадать в `runtime-config.js`, Git или публичную папку.
+Production URL уже задан в проекте как `https://chydozaika.ru`: он используется для canonical, sitemap, Open Graph и статических SEO-страниц. Пароль базы, `DATABASE_URL`, Telegram-токены и прокси-данные не нужны для текущей статической версии и не должны попадать в `runtime-config.js`, Git или публичную папку.
 
 Будущий API получает секреты только из `/etc/chudozaika/api.env`, созданного на сервере из `deploy/selectel/api.env.example` с реальными значениями.
 
@@ -45,7 +39,7 @@ sudo -u postgres psql -d chudozaika -c '\conninfo'
 git clone https://github.com/mersisk/chudo-zayka-primorye.git /srv/chudozaika/app
 cd /srv/chudozaika/app
 npm run check
-SITE_URL=http://135.106.210.15 npm run build
+npm run build
 
 sudo chown -R root:chudozaika /srv/chudozaika/app
 sudo find /srv/chudozaika/app -type d -exec chmod 0750 {} \;
@@ -106,7 +100,7 @@ sudo systemctl status chudozaika-api --no-pager
 ```bash
 sudo git -C /srv/chudozaika/app pull --ff-only origin main
 sudo npm --prefix /srv/chudozaika/app run check
-sudo env SITE_URL=http://135.106.210.15 npm --prefix /srv/chudozaika/app run build
+sudo npm --prefix /srv/chudozaika/app run build
 sudo chown -R root:chudozaika /srv/chudozaika/app
 sudo systemctl reload nginx
 ```
