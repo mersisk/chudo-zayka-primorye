@@ -1,5 +1,5 @@
 # Шаблон для /etc/nginx/sites-available/chudozaika
-# Предназначен для нового VDS без других сайтов на этом IP.
+# Production-конфигурация для chydozaika.ru. HTTPS-блок добавляется отдельно.
 
 limit_req_zone $binary_remote_addr zone=chudozaika_api:10m rate=10r/m;
 limit_conn_zone $binary_remote_addr zone=chudozaika_conn:10m;
@@ -7,7 +7,7 @@ limit_conn_zone $binary_remote_addr zone=chudozaika_conn:10m;
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
-    server_name 135.106.210.15;
+    server_name chydozaika.ru www.chydozaika.ru 135.106.210.15;
 
     root /srv/chudozaika/app/dist;
     index index.html;

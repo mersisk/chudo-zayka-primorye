@@ -1,0 +1,17 @@
+[Unit]
+Description=Retry Chudo Zayka Telegram notifications
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=chudozaika
+Group=chudozaika
+WorkingDirectory=/srv/chudozaika/app
+EnvironmentFile=/etc/chudozaika/api.env
+ExecStart=/usr/bin/node /srv/chudozaika/app/server/retry-telegram.mjs
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+UMask=0027

@@ -1,108 +1,116 @@
-# Развёртывание на Selectel VDS: IP-этап
+# Production-заявки на Selectel VDS
 
-Этот документ подготавливает сайт к работе по `http://135.106.210.15` на Ubuntu 24.04. На этом этапе HTTPS, домен, Telegram и прокси не настраиваются.
+Сайт работает на `https://chydozaika.ru`: Nginx раздаёт `dist/`, а Node.js API слушает только `127.0.0.1:3000`. PostgreSQL не публикуется в интернет. Заявка сначала сохраняется в PostgreSQL, затем API пытается доставить уведомление в Telegram через SOCKS5. Ошибка Telegram не отменяет сохранённую заявку: в таблице остаётся статус `failed` и причина сбоя.
 
-## Что есть в репозитории сейчас
+## Что добавлено
 
-- Frontend — статический сайт на нативных ES-модулях. `npm run build` собирает его в `dist/`.
-- У текущей версии нет npm-зависимостей и `package-lock.json`, поэтому `npm ci` выполнять не нужно.
-- `scripts/dev.mjs` — локальный сервер для разработки, не production API.
-- Node API и прямое подключение к PostgreSQL отсутствуют.
-- По умолчанию заявка сохраняется в `localStorage` браузера. Режим `supabase` из `src/data/store.js` работает только с внешним Supabase и не использует PostgreSQL VDS.
+- `POST /api/applications` — принимает JSON-заявку размером до 24 KiB.
+- Сервер повторно проверяет имя, российский телефон, дату, согласие и выбранные услуги. Названия и стоимость вариантов берутся из серверного каталога, поэтому их нельзя подменить браузером.
+- PostgreSQL-таблица `applications` создаётся миграцией без удаления существующих данных.
+- `GET /api/health` — локальная проверка доступности процесса.
+- API ограничивает заявки с одного IP; Nginx добавляет второй лимит на `/api`.
+- Telegram соединяется с `api.telegram.org` через SOCKS5 с логином и паролем. Секреты остаются только в `/etc/chudozaika/api.env`.
+- systemd timer повторяет недоставленные Telegram-уведомления каждые пять минут.
 
-Поэтому первые команды ниже безопасно публикуют frontend по IP. Шаблоны API подготовлены заранее, но сервис API пока **не включается**: файла `server/index.mjs` в текущем проекте нет. Чтобы реально сохранять заявки в существующий PostgreSQL, следующим отдельным этапом нужно реализовать API, серверную валидацию и миграцию PostgreSQL.
+## Переменные окружения
 
-## Переменные и секреты
+Создайте закрытый файл только на VDS из [api.env.example](../deploy/selectel/api.env.example). Заполните вручную:
 
-Production URL уже задан в проекте как `https://chydozaika.ru`: он используется для canonical, sitemap, Open Graph и статических SEO-страниц. Пароль базы, `DATABASE_URL`, Telegram-токены и прокси-данные не нужны для текущей статической версии и не должны попадать в `runtime-config.js`, Git или публичную папку.
+| Переменная | Значение |
+| --- | --- |
+| `DATABASE_URL` | URL подключения пользователя PostgreSQL `chudozaika` к БД `chudozaika` на `127.0.0.1` |
+| `BOT_TOKEN` | токен Telegram-бота |
+| `TELEGRAM_CHAT_ID` | ID Telegram-группы |
+| `PROXY_HOST`, `PROXY_PORT` | адрес и порт SOCKS5-прокси |
+| `PROXY_USER`, `PROXY_PASS` | учётные данные SOCKS5-прокси |
+| `CORS_ORIGIN` | `https://chydozaika.ru` |
 
-Будущий API получает секреты только из `/etc/chudozaika/api.env`, созданного на сервере из `deploy/selectel/api.env.example` с реальными значениями.
+Не добавляйте этот файл в Git, `runtime-config.js`, папку `dist` или конфигурацию Nginx.
 
-## Команды для VDS
+## Развёртывание на VDS
 
-Выполняйте по порядку под пользователем с `sudo`. Команды не открывают PostgreSQL наружу и не удаляют данные базы.
+Команды ниже не удаляют данные. Перед изменениями на рабочем сервере проверьте текущий статус: `sudo systemctl status nginx chudozaika-api --no-pager`.
 
 ```bash
 ssh root@135.106.210.15
 
 sudo apt update
-sudo apt install -y git nginx ufw
+sudo apt install -y git nginx postgresql curl
 node --version
 npm --version
-sudo systemctl enable --now nginx postgresql
 
-# Создаёт отдельного системного пользователя только если его ещё нет.
-id chudozaika >/dev/null 2>&1 || sudo adduser --system --group --home /srv/chudozaika chudozaika
-sudo install -d -o "$USER" -g chudozaika -m 0750 /srv/chudozaika
-sudo -u postgres psql -d chudozaika -c '\conninfo'
-
-git clone https://github.com/mersisk/chudo-zayka-primorye.git /srv/chudozaika/app
-cd /srv/chudozaika/app
-npm run check
-npm run build
-
-sudo chown -R root:chudozaika /srv/chudozaika/app
-sudo find /srv/chudozaika/app -type d -exec chmod 0750 {} \;
-sudo find /srv/chudozaika/app -type f -exec chmod 0640 {} \;
-sudo find /srv/chudozaika/app/dist -type f -exec chmod 0644 {} \;
-sudo find /srv/chudozaika/app/dist -type d -exec chmod 0755 {} \;
-```
-
-Перед отключением стандартного сайта Nginx убедитесь, что на VDS действительно нет другого сайта. Для нового сервера выполните:
-
-```bash
-sudo cp /srv/chudozaika/app/deploy/selectel/nginx-ip.conf.template /etc/nginx/sites-available/chudozaika
-sudo rm -f /etc/nginx/sites-enabled/default
-sudo ln -s /etc/nginx/sites-available/chudozaika /etc/nginx/sites-enabled/chudozaika
-sudo nginx -t
-sudo systemctl reload nginx
-```
-
-Настройка UFW оставляет только SSH, HTTP и будущий HTTPS. Порт PostgreSQL `5432` не открывается:
-
-```bash
-sudo ufw allow OpenSSH
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-sudo ufw enable
-sudo ufw status verbose
-```
-
-Проверка после установки:
-
-```bash
-curl -I http://135.106.210.15/
-curl -I http://135.106.210.15/robots.txt
-curl -I http://135.106.210.15/sitemap.xml
-```
-
-## Будущий Node API и PostgreSQL
-
-После появления API скопируйте подготовленные шаблоны, заполните секреты вручную и только затем включите сервис:
-
-```bash
 sudo install -d -o root -g chudozaika -m 0750 /etc/chudozaika
 sudo install -o root -g chudozaika -m 0640 /srv/chudozaika/app/deploy/selectel/api.env.example /etc/chudozaika/api.env
 sudoedit /etc/chudozaika/api.env
-# Убедитесь, что путь к Node.js совпадает с результатом: command -v node
-sudo install -o root -g root -m 0644 /srv/chudozaika/app/deploy/selectel/chudozaika-api.service.template /etc/systemd/system/chudozaika-api.service
+
+# Нужны только права на создание таблицы в уже существующей БД; 5432 наружу не открывается.
+sudo -u postgres psql -d chudozaika -c 'GRANT USAGE, CREATE ON SCHEMA public TO chudozaika;'
+
+cd /srv/chudozaika/app
+sudo npm install --omit=dev
+sudo install -o root -g root -m 0644 deploy/selectel/chudozaika-api.service.template /etc/systemd/system/chudozaika-api.service
 sudo systemctl daemon-reload
+
+# Миграция только создаёт отсутствующую таблицу и индексы.
+sudo -u chudozaika bash -c 'set -a; . /etc/chudozaika/api.env; set +a; cd /srv/chudozaika/app; npm run db:migrate'
+
 sudo systemctl enable --now chudozaika-api
 sudo systemctl status chudozaika-api --no-pager
+
+sudo install -o root -g root -m 0644 deploy/selectel/chudozaika-telegram-retry.service.template /etc/systemd/system/chudozaika-telegram-retry.service
+sudo install -o root -g root -m 0644 deploy/selectel/chudozaika-telegram-retry.timer.template /etc/systemd/system/chudozaika-telegram-retry.timer
+sudo systemctl daemon-reload
+sudo systemctl enable --now chudozaika-telegram-retry.timer
+sudo systemctl list-timers chudozaika-telegram-retry.timer --all
 ```
 
-В `api.env` замените только `CHANGE_ME` в `DATABASE_URL` на пароль пользователя PostgreSQL `chudozaika`. Сервис обязан слушать `127.0.0.1:3000`; Nginx будет единственной внешней точкой доступа к `/api`.
+Убедитесь, что в `chudozaika-api.service` путь в `ExecStart` совпадает с `command -v node`. Сервис должен слушать только `127.0.0.1:3000`.
 
-Когда API будет добавлен, он должен принимать запросы только с того же origin `http://135.106.210.15`, повторно валидировать все поля заявки на сервере, использовать параметризованные SQL-запросы и отвечать на `GET /api/health`. Nginx уже ограничивает `/api` до 10 запросов в минуту с burst 20; API должен иметь собственный rate limit как второй уровень защиты.
+## Nginx и firewall
 
-## Обновление frontend без удаления данных
+Шаблон [nginx-ip.conf.template](../deploy/selectel/nginx-ip.conf.template) показывает нужный блок `/api/`: он проксирует запросы на локальный сервис и раздаёт frontend из `/srv/chudozaika/app/dist`. На уже работающем VDS с HTTPS **не копируйте шаблон поверх текущего виртуального хоста** — проверьте, что в активном HTTPS `server` уже есть этот блок `location /api/`, затем только проверьте и перезагрузите Nginx.
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+
+sudo ufw allow OpenSSH
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw status verbose
+```
+
+Не добавляйте правило UFW для `5432` или `3000`: PostgreSQL и API должны быть доступны только локально.
+
+## Проверка после установки
+
+```bash
+curl -fsS http://127.0.0.1:3000/api/health
+curl -fsSI https://chydozaika.ru/
+curl -fsS https://chydozaika.ru/api/health
+sudo journalctl -u chudozaika-api -n 100 --no-pager
+```
+
+Отправьте одну реальную тестовую заявку через форму. Проверьте новую строку в БД и поле `telegram_status`:
+
+```bash
+sudo -u postgres psql -d chudozaika -c 'SELECT id, name, phone, telegram_status, created_at FROM applications ORDER BY created_at DESC LIMIT 10;'
+```
+
+При `telegram_status = 'failed'` заявка уже сохранена. Причина доставки ограниченно записывается в `telegram_error`; systemd timer повторит отправку. Для немедленной повторной попытки без создания новой заявки используйте:
+
+```bash
+sudo systemctl start chudozaika-telegram-retry.service
+sudo journalctl -u chudozaika-telegram-retry.service -n 50 --no-pager
+```
+
+## Обновление приложения
 
 ```bash
 sudo git -C /srv/chudozaika/app pull --ff-only origin main
+sudo npm --prefix /srv/chudozaika/app install --omit=dev
 sudo npm --prefix /srv/chudozaika/app run check
 sudo npm --prefix /srv/chudozaika/app run build
-sudo chown -R root:chudozaika /srv/chudozaika/app
+sudo systemctl restart chudozaika-api
 sudo systemctl reload nginx
 ```
-
-Эти команды не меняют и не удаляют записи в PostgreSQL. Миграции базы выполняйте только отдельной согласованной командой после резервной копии.

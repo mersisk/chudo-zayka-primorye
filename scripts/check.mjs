@@ -77,6 +77,12 @@ try {
   failures.push(`Маршрутизация: ${error.stderr?.toString() || error.message}`);
 }
 
+try {
+  execFileSync(process.execPath, [join(root, "server/application-smoke.mjs")], { stdio: "pipe" });
+} catch (error) {
+  failures.push(`API заявок: ${error.stderr?.toString() || error.message}`);
+}
+
 const secretPatterns = [
   /service[_-]?role\s*[:=]\s*["'][A-Za-z0-9._-]{20,}/i,
   /sb_secret_[A-Za-z0-9_-]{12,}/,
@@ -124,4 +130,5 @@ console.log("— проверка валидации формы");
 console.log("— базовая проверка безопасности");
 console.log("— SEO-метаданные и индексируемые URL");
 console.log("— маршрутизация от корня и hash-якоря");
+console.log("— серверная подготовка и валидация заявки");
 console.log("— запуск локального сайта\n");

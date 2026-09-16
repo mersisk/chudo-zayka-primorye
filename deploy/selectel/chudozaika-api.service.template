@@ -1,5 +1,5 @@
 # Шаблон для /etc/systemd/system/chudozaika-api.service
-# Не включайте сервис, пока в репозитории не появится server/index.mjs.
+# Node.js API заявок. Перед включением выполните npm run db:migrate.
 
 [Unit]
 Description=Chudo Zayka Node.js API
@@ -16,6 +16,7 @@ ExecStart=/usr/bin/node /srv/chudozaika/app/server/index.mjs
 Restart=on-failure
 RestartSec=5
 TimeoutStopSec=20
+UMask=0027
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict

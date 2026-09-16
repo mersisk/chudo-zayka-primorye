@@ -33,6 +33,7 @@ const pageHtml = (meta) => {
     .replace(/<meta property="og:image"[^>]*data-seo="og:image">/, `<meta property="og:image" content="${imageUrl(meta.image)}" data-seo="og:image">`)
     .replace(/<meta property="og:url"[^>]*data-seo="og:url">/, `<meta property="og:url" content="${canonical}" data-seo="og:url">`)
     .replace(/<title>[^<]*<\/title>/, `<title>${meta.title}</title>`)
+    .replace("</head>", `<link rel="preload" as="image" href="${imageUrl(meta.image)}" fetchpriority="high"></head>`)
     .replace('<head>', `<head><base href="${basePath}">`)
     .replace(/<div id="app">[\s\S]*?<\/div>\s*<script src="\.\/runtime-config\.js">/, `<div id="app">${staticSeoMarkup(meta)}</div>\n    <script src="./runtime-config.js">`)
     .replace(/<script id="seo-schema" type="application\/ld\+json">[\s\S]*?<\/script>/, `<script id="seo-schema" type="application/ld+json">${schema}</script>`));

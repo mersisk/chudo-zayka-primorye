@@ -108,5 +108,5 @@ export function pageSchema(meta) {
 }
 
 export function staticSeoMarkup(meta) {
-  return `<main id="main"><article><h1>${meta.h1}</h1><p>${meta.description}</p><p>«Чудо Зайка» — аниматорское агентство для детских праздников во Владивостоке и Приморском крае. Выберите программу и оставьте заявку на сайте.</p></article></main>`;
+  return `<main id="main" class="seo-fallback"><article><h1>${meta.h1}</h1><p>${meta.description}</p><p>«Чудо Зайка» — аниматорское агентство для детских праздников во Владивостоке и Приморском крае. Выберите программу и оставьте заявку на сайте.</p></article></main>`;
 }

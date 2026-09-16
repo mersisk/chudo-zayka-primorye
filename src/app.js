@@ -82,6 +82,22 @@ function servicePrice(service, prefix = "от") {
   return service.price != null && service.priceUnit ? `${price} ${service.priceUnit}` : price;
 }
 
+async function submitApplication(payload) {
+  const response = await fetch("/api/applications", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    credentials: "same-origin",
+    body: JSON.stringify({
+      ...payload,
+      consent: true,
+      items: payload.items.map((item) => ({ id: item.id })),
+    }),
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.error || "Не удалось отправить заявку");
+  return result;
+}
+
 function nav(active) {
   return [
     { href: routeHref("/"), label: "Главная", active: active === "home" },
@@ -99,10 +115,11 @@ function categoryLabel(category) {
 }
 
 function mediaStage(image, alt, className = "", loading = "lazy") {
+  const priority = loading === "" ? ' fetchpriority="high" decoding="async"' : ' decoding="async"';
   return `
     <span class="media-stage ${className}">
       <img class="media-stage__blur" src="${escapeHtml(image)}" alt="" aria-hidden="true" ${loading ? `loading="${loading}"` : ""}>
-      <img class="media-stage__image" src="${escapeHtml(image)}" alt="${escapeHtml(alt)}" ${loading ? `loading="${loading}"` : ""}>
+      <img class="media-stage__image" src="${escapeHtml(image)}" alt="${escapeHtml(alt)}" ${loading ? `loading="${loading}"` : ""}${priority}>
     </span>
   `;
 }
@@ -673,7 +690,7 @@ function renderCart() {
                 <label class="consent"><input name="consent" type="checkbox" required><span>Я принимаю <a href="${routeHref("/agreement")}" target="_blank" rel="noreferrer">пользовательское соглашение</a> и даю согласие на обработку персональных данных по <a href="${routeHref("/privacy")}" target="_blank" rel="noreferrer">политике конфиденциальности</a> для обработки заявки и связи со мной.</span></label>
                 <p id="form-error" class="field-error" hidden></p>
                 <button class="button button--primary button--wide" type="submit">Отправить заявку <span>${icons.arrow}</span></button>
-                <p class="form-note">Пока данные сохраняются только в браузере этого устройства.</p>
+                <p class="form-note">Заявка отправится менеджеру после проверки формы.</p>
               </form>
             </div>
           ` : `
@@ -721,7 +738,7 @@ function renderCart() {
     button.textContent = "Отправляем…";
 
     try {
-      await store.create("lead", payload, "new");
+      await submitApplication(payload);
       writeCart([]);
       location.href = routeHref("/thanks");
     } catch (cause) {
@@ -744,7 +761,7 @@ function renderThanks() {
     cartCount: 0,
     backHref: routeHref("/"),
     backLabel: "На главную",
-    content: `<section class="thanks-page"><div class="thanks-orbit" aria-hidden="true"></div><div class="container"><div class="thanks-card reveal"><span class="thanks-icon">${icons.check}</span><p class="eyebrow">Заявка сохранена</p><h1>Праздник<br>уже ближе</h1><p>В этой версии заявка хранится только на вашем устройстве. Когда подключим базу, она будет сразу попадать менеджеру.</p><div><a class="button button--primary" href="${routeHref("/")}">На главную</a><a class="button button--glass" href="${project.phoneHref}">Позвонить сейчас</a></div></div></div></section>`,
+    content: `<section class="thanks-page"><div class="thanks-orbit" aria-hidden="true"></div><div class="container"><div class="thanks-card reveal"><span class="thanks-icon">${icons.check}</span><p class="eyebrow">Заявка отправлена</p><h1>Праздник<br>уже ближе</h1><p>Менеджер получит заявку, проверит дату и свяжется с вами, чтобы уточнить детали.</p><div><a class="button button--primary" href="${routeHref("/")}">На главную</a><a class="button button--glass" href="${project.phoneHref}">Позвонить сейчас</a></div></div></div></section>`,
   });
   bindMotion();
 }
