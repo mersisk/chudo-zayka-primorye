@@ -1,5 +1,6 @@
 import { catalogGroups, categories, currentOffer, getService, project, reviews, services, steps } from "./project.js";
 import { store } from "./data/store.js";
+import { formatRussianPhone, validateLead } from "./validation.js";
 import {
   escapeHtml,
   formatDate,
@@ -14,6 +15,12 @@ import {
 } from "./ui.js";
 
 const CART_KEY = "chudo-zayka-cart-v1";
+
+function todayInputValue() {
+  const date = new Date();
+  date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+  return date.toISOString().slice(0, 10);
+}
 
 const icons = {
   arrow: "↗",
@@ -267,6 +274,7 @@ function renderHome() {
               <a class="button button--primary magnetic" href="#/catalog/animators">Открыть каталог <span>${icons.arrow}</span></a>
               <a class="button button--glass" href="#/reviews">Смотреть отзывы</a>
             </div>
+            <a class="hero-phone" href="${project.phoneHref}" aria-label="Позвонить в Чудо Зайка по номеру ${escapeHtml(project.phone)}"><span>Позвонить сейчас</span><strong>${escapeHtml(project.phone)}</strong></a>
             <div class="hero-facts" aria-label="Коротко о каталоге">
               <div><strong>30+</strong><span>персонажей и ростовых героев</span></div>
               <div><strong>10+</strong><span>шоу и дополнений</span></div>
@@ -654,9 +662,9 @@ function renderCart() {
               <form id="request-form" class="request-form reveal" style="--delay:100ms" novalidate>
                 <h2>Детали события</h2>
                 <div class="form-grid">
-                  <label>Как вас зовут<input name="name" autocomplete="name" maxlength="80" required placeholder="Ваше имя"></label>
-                  <label>Телефон<input name="phone" type="tel" autocomplete="tel" maxlength="32" required placeholder="+7 900 000-00-00"></label>
-                  <label>Дата события<input name="eventDate" type="date" required></label>
+                  <label>Как вас зовут<input name="name" autocomplete="name" maxlength="80" required placeholder="Ваше имя" aria-describedby="form-error"></label>
+                  <label>Телефон<input name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="18" required pattern="^\\+7 \\(\\d{3}\\) \\d{3}-\\d{2}-\\d{2}$" title="Введите номер в формате +7 (999) 999-99-99" placeholder="+7 (900) 000-00-00" aria-describedby="form-error"></label>
+                  <label>Дата события<input name="eventDate" type="date" min="${todayInputValue()}" required aria-describedby="form-error"></label>
                   <label>Город или район<input name="city" autocomplete="address-level2" maxlength="120" placeholder="Например, Владивосток"></label>
                   <label>Возраст ребёнка<input name="childAge" inputmode="numeric" maxlength="30" placeholder="Если праздник детский"></label>
                   <label class="form-grid__wide">Комментарий<textarea name="comment" maxlength="1000" placeholder="Место, количество гостей, пожелания"></textarea></label>
@@ -690,21 +698,18 @@ function renderCart() {
     event.preventDefault();
     const form = event.currentTarget;
     const data = new FormData(form);
+    const checked = validateLead({
+      name: data.get("name"), phone: data.get("phone"), eventDate: data.get("eventDate"), city: data.get("city"),
+      childAge: data.get("childAge"), comment: data.get("comment"), consent: data.get("consent"),
+    });
     const payload = {
-      name: String(data.get("name") || "").trim(),
-      phone: String(data.get("phone") || "").trim(),
-      eventDate: String(data.get("eventDate") || "").trim(),
-      city: String(data.get("city") || "").trim(),
-      childAge: String(data.get("childAge") || "").trim(),
-      comment: String(data.get("comment") || "").trim(),
+      ...checked.value,
       items: items.map((item) => ({ id: item.id, title: item.title, category: item.category, duration: item.duration, image: item.image, price: item.price, priceUnit: item.priceUnit || null })),
       knownTotal: items.reduce((sum, item) => sum + (item.price || 0), 0),
     };
     const error = qs("#form-error");
-    const digits = payload.phone.replace(/\D/g, "");
-
-    if (payload.name.length < 2 || digits.length < 10 || !payload.eventDate || !data.get("consent")) {
-      error.textContent = "Заполните имя, телефон, дату и подтвердите согласие на обработку данных.";
+    if (!checked.valid) {
+      error.textContent = checked.errors[0];
       error.hidden = false;
       return;
     }
@@ -724,6 +729,9 @@ function renderCart() {
       button.disabled = false;
       button.innerHTML = `Отправить заявку <span>${icons.arrow}</span>`;
     }
+  });
+  qs('input[name="phone"]')?.addEventListener("blur", (event) => {
+    event.currentTarget.value = formatRussianPhone(event.currentTarget.value);
   });
   bindMotion();
 }
